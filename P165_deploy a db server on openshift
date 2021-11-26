@@ -1,0 +1,280 @@
+[student@workstation dockerfile-review]$ oc new-project ${RHT_OCP4_DEV_USER}-mysql-openshift
+Now using project "vstyvk-mysql-openshift" on server "https://api.na46.prod.nextcle.com:6443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app rails-postgresql-example
+
+to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+
+    kubectl create deployment hello-node --image=k8s.gcr.io/serve_hostname
+
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc new-app \
+> --template=mysql-persistent \
+> -p MYSQL_USER=user1 -p MYSQL_PASSWORD=mypa55 -p MYSQL_DATABASE=testdb \
+>  -p MYSQL_ROOT_PASSWORD=r00tpa55 -p VOLUME_CAPACITY=10Gi
+--> Deploying template "openshift/mysql-persistent" to project vstyvk-mysql-openshift
+
+     MySQL
+     ---------
+     MySQL database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mysql-container/blob/master/8.0/root/usr/share/container-scripts/mysql/README.md.
+     
+     NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+
+     The following service(s) have been created in your project: mysql.
+     
+            Username: user1
+            Password: mypa55
+       Database Name: testdb
+      Connection URL: mysql://mysql:3306/
+     
+     For more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mysql-container/blob/master/8.0/root/usr/share/container-scripts/mysql/README.md.
+
+     * With parameters:
+        * Memory Limit=512Mi
+        * Namespace=openshift
+        * Database Service Name=mysql
+        * MySQL Connection Username=user1
+        * MySQL Connection Password=mypa55
+        * MySQL root user Password=r00tpa55
+        * MySQL Database Name=testdb
+        * Volume Capacity=10Gi
+        * Version of MySQL Image=8.0-el8
+
+--> Creating resources ...
+    secret "mysql" created
+    service "mysql" created
+    persistentvolumeclaim "mysql" created
+    deploymentconfig.apps.openshift.io "mysql" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/mysql' 
+    Run 'oc status' to view your app.
+[student@workstation dockerfile-review]$ 
+
+[student@workstation dockerfile-review]$  oc status
+In project vstyvk-mysql-openshift on server https://api.na46.prod.nextcle.com:6443
+
+svc/mysql - 172.30.142.169:3306
+  dc/mysql deploys openshift/mysql:8.0-el8 
+    deployment #1 deployed about a minute ago - 1 pod
+
+View details with 'oc describe <resource>/<name>' or list resources with 'oc get all'.
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc get pods
+NAME             READY   STATUS      RESTARTS   AGE
+mysql-1-deploy   0/1     Completed   0          2m5s
+mysql-1-ghvhj    1/1     Running     0          2m2s
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc describe pod mysql-1-ghvhj
+Name:         mysql-1-ghvhj
+Namespace:    vstyvk-mysql-openshift
+Priority:     0
+Node:         na46-96rsp-worker-0-zwk6n/10.0.2.50
+Start Time:   Wed, 24 Nov 2021 17:20:57 -0500
+Labels:       deployment=mysql-1
+              deploymentconfig=mysql
+              name=mysql
+Annotations:  k8s.v1.cni.cncf.io/network-status:
+                [{
+                    "name": "",
+                    "interface": "eth0",
+                    "ips": [
+                        "10.131.6.76"
+                    ],
+                    "default": true,
+                    "dns": {}
+                }]
+              k8s.v1.cni.cncf.io/networks-status:
+                [{
+                    "name": "",
+                    "interface": "eth0",
+                    "ips": [
+                        "10.131.6.76"
+                    ],
+                    "default": true,
+                    "dns": {}
+                }]
+              kubernetes.io/limit-ranger: LimitRanger plugin set: cpu request for container mysql; cpu limit for container mysql
+              openshift.io/deployment-config.latest-version: 1
+              openshift.io/deployment-config.name: mysql
+              openshift.io/deployment.name: mysql-1
+              openshift.io/generated-by: OpenShiftNewApp
+              openshift.io/scc: restricted
+Status:       Running
+IP:           10.131.6.76
+IPs:
+  IP:           10.131.6.76
+Controlled By:  ReplicationController/mysql-1
+Containers:
+  mysql:
+    Container ID:   cri-o://7aa8c0b03c0ad567f8b5ac9330ca8decfe6d82db9f76a8648ad279569fb8ed80
+    Image:          image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:05a395a42379c56261ee0694975c5643e301d36f2d77d9241d9a1fe89899f341
+    Image ID:       image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:05a395a42379c56261ee0694975c5643e301d36f2d77d9241d9a1fe89899f341
+    Port:           3306/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 24 Nov 2021 17:21:09 -0500
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     1500m
+      memory:  512Mi
+    Requests:
+      cpu:      5m
+      memory:   512Mi
+    Liveness:   exec [/bin/sh -i -c MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping] delay=30s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  exec [/bin/sh -i -c MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping] delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      MYSQL_USER:           <set to the key 'database-user' in secret 'mysql'>           Optional: false
+      MYSQL_PASSWORD:       <set to the key 'database-password' in secret 'mysql'>       Optional: false
+      MYSQL_ROOT_PASSWORD:  <set to the key 'database-root-password' in secret 'mysql'>  Optional: false
+      MYSQL_DATABASE:       <set to the key 'database-name' in secret 'mysql'>           Optional: false
+    Mounts:
+      /var/lib/mysql/data from mysql-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-j8pss (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  mysql-data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  mysql
+    ReadOnly:   false
+  default-token-j8pss:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-j8pss
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason                  Age    From                     Message
+  ----     ------                  ----   ----                     -------
+  Normal   Scheduled               2m50s  default-scheduler        Successfully assigned vstyvk-mysql-openshift/mysql-1-ghvhj to na46-96rsp-worker-0-zwk6n
+  Normal   SuccessfulAttachVolume  2m46s  attachdetach-controller  AttachVolume.Attach succeeded for volume "pvc-2b740424-1256-4139-b92c-a937fc281909"
+  Normal   AddedInterface          2m38s  multus                   Add eth0 [10.131.6.76/23]
+  Normal   Pulled                  2m38s  kubelet                  Container image "image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:05a395a42379c56261ee0694975c5643e301d36f2d77d9241d9a1fe89899f341" already present on machine
+  Normal   Created                 2m38s  kubelet                  Created container mysql
+  Normal   Started                 2m38s  kubelet                  Started container mysql
+  Warning  Unhealthy               2m31s  kubelet                  Readiness probe failed: sh: cannot set terminal process group (-1): Inappropriate ioctl for device
+sh: no job control in this shell
+mysqladmin: connect to server at 'localhost' failed
+error: 'Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)'
+Check that mysqld is running and that the socket: '/var/lib/mysql/mysql.sock' exists!
+[student@workstation dockerfile-review]$ 
+
+[student@workstation dockerfile-review]$ oc get svc
+NAME    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+mysql   ClusterIP   172.30.142.169   <none>        3306/TCP   5m59s
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc describe svc mysql
+Name:              mysql
+Namespace:         vstyvk-mysql-openshift
+Labels:            app=mysql-persistent
+                   app.kubernetes.io/component=mysql-persistent
+                   app.kubernetes.io/instance=mysql-persistent
+                   template=mysql-persistent-template
+Annotations:       openshift.io/generated-by: OpenShiftNewApp
+                   template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name=="mysql")].port}
+Selector:          name=mysql
+Type:              ClusterIP
+IP:                172.30.142.169
+Port:              mysql  3306/TCP
+TargetPort:        3306/TCP
+Endpoints:         10.131.6.76:3306
+Session Affinity:  None
+Events:            <none>
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc get pvc
+NAME    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mysql   Bound    pvc-2b740424-1256-4139-b92c-a937fc281909   10Gi       RWO            standard       6m33s
+[student@workstation dockerfile-review]$ 
+[student@workstation dockerfile-review]$ oc describe pvc/mysql
+Name:          mysql
+Namespace:     vstyvk-mysql-openshift
+StorageClass:  standard
+Status:        Bound
+Volume:        pvc-2b740424-1256-4139-b92c-a937fc281909
+Labels:        app=mysql-persistent
+               app.kubernetes.io/component=mysql-persistent
+               app.kubernetes.io/instance=mysql-persistent
+               template=mysql-persistent-template
+Annotations:   openshift.io/generated-by: OpenShiftNewApp
+               pv.kubernetes.io/bind-completed: yes
+               pv.kubernetes.io/bound-by-controller: yes
+               volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/cinder
+               volume.kubernetes.io/selected-node: na46-96rsp-worker-0-zwk6n
+Finalizers:    [kubernetes.io/pvc-protection]
+Capacity:      10Gi
+Access Modes:  RWO
+VolumeMode:    Filesystem
+Mounted By:    mysql-1-ghvhj
+Events:
+  Type    Reason                 Age    From                         Message
+  ----    ------                 ----   ----                         -------
+  Normal  WaitForFirstConsumer   6m54s  persistentvolume-controller  waiting for first consumer to be created before binding
+  Normal  ProvisioningSucceeded  6m50s  persistentvolume-controller  Successfully provisioned volume pvc-2b740424-1256-4139-b92c-a937fc281909 using kubernetes.io/cinder
+[student@workstation dockerfile-review]$ 
+
+
+[student@workstation dockerfile-review]$ oc port-forward mysql-1-ghvhj 3306:3306 
+Forwarding from 127.0.0.1:3306 -> 3306
+Forwarding from [::1]:3306 -> 3306
+
+
+### From 2nd Terminal window ###
+
+[student@workstation ~]$  mysql -uuser1 -pmypa55 --protocol tcp -h localhost
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 130
+Server version: 8.0.26 Source distribution
+
+Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| testdb             |
++--------------------+
+2 rows in set (0.01 sec)
+
+mysql> 
+mysql> exit
+Bye
+[student@workstation ~]$ 
+
+
+### Return to the 1st terminal window ###
+
+[student@workstation dockerfile-review]$ oc port-forward mysql-1-ghvhj 3306:3306 
+Forwarding from 127.0.0.1:3306 -> 3306
+Forwarding from [::1]:3306 -> 3306
+Handling connection for 3306
+^C
+[student@workstation dockerfile-review]$
+
+
+[student@workstation dockerfile-review]$  oc delete project ${RHT_OCP4_DEV_USER}-mysql-openshift
+project.project.openshift.io "vstyvk-mysql-openshift" deleted
+[student@workstation dockerfile-review]$ 
+
+
+
+
+

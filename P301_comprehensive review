@@ -1,0 +1,787 @@
+[student@workstation temp_1]$ git init
+Initialized empty Git repository in /home/student/DO180/temp_1/.git/
+[student@workstation temp_1]$ ls -la
+total 0
+drwxrwxr-x. 4 student student  46 Nov 26 09:15 .
+drwxr-xr-x. 6 student student  61 Nov 26 09:10 ..
+drwxrwxr-x. 4 student student  33 Nov 26 09:11 comprehensive-review
+drwxrwxr-x. 7 student student 119 Nov 26 09:15 .git
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ git add .
+[student@workstation temp_1]$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+	new file:   comprehensive-review/deploy/local/run-persistent.sh
+	new file:   comprehensive-review/deploy/openshift/resources/nexus-deployment.yaml
+	new file:   comprehensive-review/image/.gitignore
+	new file:   comprehensive-review/image/create_nexus_account.snippet
+	new file:   comprehensive-review/image/get-nexus-bundle.sh
+	new file:   comprehensive-review/image/install_java.snippet
+	new file:   comprehensive-review/image/nexus-start.sh
+
+[student@workstation temp_1]$ git commit -m "Comprehensive review lab"
+[master (root-commit) 0dcf942] Comprehensive review lab
+ 7 files changed, 117 insertions(+)
+ create mode 100755 comprehensive-review/deploy/local/run-persistent.sh
+ create mode 100644 comprehensive-review/deploy/openshift/resources/nexus-deployment.yaml
+ create mode 100644 comprehensive-review/image/.gitignore
+ create mode 100644 comprehensive-review/image/create_nexus_account.snippet
+ create mode 100755 comprehensive-review/image/get-nexus-bundle.sh
+ create mode 100644 comprehensive-review/image/install_java.snippet
+ create mode 100755 comprehensive-review/image/nexus-start.sh
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ git remote add origin https://github.com/whynot108/DO180_lab_comprehensive-review.git
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ git push -u origin master
+Username for 'https://github.com': whynot108
+Password for 'https://whynot108@github.com': 
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (15/15), 2.13 KiB | 2.13 MiB/s, done.
+Total 15 (delta 0), reused 0 (delta 0)
+To https://github.com/whynot108/DO180_lab_comprehensive-review.git
+ * [new branch]      master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ 
+[student@workstation temp_1]$ cd /home/student/DO180/labs/comprehensive-review/image
+[student@workstation image]$ ls
+create_nexus_account.snippet  install_java.snippet
+get-nexus-bundle.sh           nexus-start.sh
+[student@workstation image]$ 
+[student@workstation image]$ cat get-nexus-bundle.sh 
+#!/bin/bash
+if curl -L --progress-bar -O https://download.sonatype.com/nexus/oss/nexus-2.14.3-02-bundle.tar.gz
+then
+  echo "Nexus bundle download successful"
+else
+  echo "Download failed"
+fi
+[student@workstation image]$ 
+[student@workstation image]$ ./get-nexus-bundle.sh 
+######################################################################### 100.0%######################################################################### 100.0%
+Nexus bundle download successful
+[student@workstation image]$ 
+[student@workstation image]$ vim Containerfile
+[student@workstation image]$ 
+[student@workstation image]$ 
+[student@workstation image]$ podman build --layers=false -t nexus .
+STEP 1: FROM ubi8/ubi:8.3
+Getting image source signatures
+Copying blob 55eda7743468 skipped: already exists
+Copying blob 4b21dcdd136d skipped: already exists
+Copying config 613e5da7a9 done
+Writing manifest to image destination
+Storing signatures
+STEP 2: MAINTAINER andrew.xu <andrew.xu@example.com>
+STEP 3: ARG NEXUS_VERSION=2.14.3-02
+STEP 4: ENV NEXUS_HOME=/opt/nexus
+STEP 5: RUN yum install -y --setopt=tsflags=nodocs java-1.8.0-openjdk-devel     && yum clean all -y
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  2.4 MB/s | 794 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre  13 MB/s | 2.6 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea 134 kB/s |  15 kB     00:00    
+Dependencies resolved.
+==============================================================================================
+ Package                       Arch    Version                          Repository        Size
+==============================================================================================
+Installing:
+ java-1.8.0-openjdk-devel      x86_64  1:1.8.0.312.b07-2.el8_5          ubi-8-appstream  9.8 M
+Upgrading:
+ lua-libs                      x86_64  5.3.4-12.el8                     ubi-8-baseos     118 k
+Installing dependencies:
+ alsa-lib                      x86_64  1.2.5-4.el8                      ubi-8-appstream  489 k
+ atk                           x86_64  2.28.1-1.el8                     ubi-8-appstream  272 k
+ avahi-libs                    x86_64  0.7-20.el8                       ubi-8-baseos      62 k
+ cairo                         x86_64  1.15.12-3.el8                    ubi-8-appstream  721 k
+ copy-jdk-configs              noarch  4.0-2.el8                        ubi-8-appstream   31 k
+ cups-libs                     x86_64  1:2.2.6-40.el8                   ubi-8-baseos     433 k
+ dejavu-fonts-common           noarch  2.35-7.el8                       ubi-8-baseos      74 k
+ dejavu-sans-fonts             noarch  2.35-7.el8                       ubi-8-baseos     1.5 M
+ fontconfig                    x86_64  2.13.1-4.el8                     ubi-8-baseos     274 k
+ fontpackages-filesystem       noarch  1.44-22.el8                      ubi-8-baseos      16 k
+ freetype                      x86_64  2.9.1-4.el8_3.1                  ubi-8-baseos     394 k
+ fribidi                       x86_64  1.0.4-8.el8                      ubi-8-appstream   89 k
+ gdk-pixbuf2                   x86_64  2.36.12-5.el8                    ubi-8-baseos     467 k
+ gdk-pixbuf2-modules           x86_64  2.36.12-5.el8                    ubi-8-appstream  109 k
+ giflib                        x86_64  5.1.4-3.el8                      ubi-8-appstream   51 k
+ graphite2                     x86_64  1.3.10-10.el8                    ubi-8-appstream  122 k
+ gtk-update-icon-cache         x86_64  3.22.30-8.el8                    ubi-8-appstream   32 k
+ harfbuzz                      x86_64  1.7.5-3.el8                      ubi-8-appstream  294 k
+ hicolor-icon-theme            noarch  0.17-2.el8                       ubi-8-appstream   48 k
+ jasper-libs                   x86_64  2.0.14-5.el8                     ubi-8-appstream  167 k
+ java-1.8.0-openjdk            x86_64  1:1.8.0.312.b07-2.el8_5          ubi-8-appstream  341 k
+ java-1.8.0-openjdk-headless   x86_64  1:1.8.0.312.b07-2.el8_5          ubi-8-appstream   34 M
+ javapackages-filesystem       noarch  5.3.0-1.module+el8+2447+6f56d9a6 ubi-8-appstream   30 k
+ jbigkit-libs                  x86_64  2.1-14.el8                       ubi-8-appstream   55 k
+ libX11                        x86_64  1.6.8-5.el8                      ubi-8-appstream  611 k
+ libX11-common                 noarch  1.6.8-5.el8                      ubi-8-appstream  158 k
+ libXau                        x86_64  1.0.9-3.el8                      ubi-8-appstream   37 k
+ libXcomposite                 x86_64  0.4.4-14.el8                     ubi-8-appstream   29 k
+ libXcursor                    x86_64  1.1.15-3.el8                     ubi-8-appstream   36 k
+ libXdamage                    x86_64  1.1.4-14.el8                     ubi-8-appstream   27 k
+ libXext                       x86_64  1.3.4-1.el8                      ubi-8-appstream   45 k
+ libXfixes                     x86_64  5.0.3-7.el8                      ubi-8-appstream   25 k
+ libXft                        x86_64  2.3.3-1.el8                      ubi-8-appstream   67 k
+ libXi                         x86_64  1.7.10-1.el8                     ubi-8-appstream   49 k
+ libXinerama                   x86_64  1.1.4-1.el8                      ubi-8-appstream   16 k
+ libXrandr                     x86_64  1.5.2-1.el8                      ubi-8-appstream   34 k
+ libXrender                    x86_64  0.9.10-7.el8                     ubi-8-appstream   33 k
+ libXtst                       x86_64  1.2.3-7.el8                      ubi-8-appstream   22 k
+ libdatrie                     x86_64  0.2.9-7.el8                      ubi-8-appstream   33 k
+ libfontenc                    x86_64  1.1.3-8.el8                      ubi-8-appstream   37 k
+ libjpeg-turbo                 x86_64  1.5.3-12.el8                     ubi-8-appstream  157 k
+ libpkgconf                    x86_64  1.4.2-1.el8                      ubi-8-baseos      35 k
+ libpng                        x86_64  2:1.6.34-5.el8                   ubi-8-baseos     126 k
+ libthai                       x86_64  0.1.27-2.el8                     ubi-8-appstream  203 k
+ libtiff                       x86_64  4.0.9-20.el8                     ubi-8-appstream  188 k
+ libxcb                        x86_64  1.13.1-1.el8                     ubi-8-appstream  229 k
+ lksctp-tools                  x86_64  1.0.18-3.el8                     ubi-8-baseos     100 k
+ lua                           x86_64  5.3.4-12.el8                     ubi-8-appstream  192 k
+ nspr                          x86_64  4.32.0-1.el8_4                   ubi-8-appstream  142 k
+ nss                           x86_64  3.67.0-6.el8_4                   ubi-8-appstream  741 k
+ nss-softokn                   x86_64  3.67.0-6.el8_4                   ubi-8-appstream  487 k
+ nss-softokn-freebl            x86_64  3.67.0-6.el8_4                   ubi-8-appstream  395 k
+ nss-sysinit                   x86_64  3.67.0-6.el8_4                   ubi-8-appstream   73 k
+ nss-util                      x86_64  3.67.0-6.el8_4                   ubi-8-appstream  137 k
+ pango                         x86_64  1.42.4-8.el8                     ubi-8-appstream  297 k
+ pixman                        x86_64  0.38.4-1.el8                     ubi-8-appstream  257 k
+ pkgconf                       x86_64  1.4.2-1.el8                      ubi-8-baseos      38 k
+ pkgconf-m4                    noarch  1.4.2-1.el8                      ubi-8-baseos      17 k
+ pkgconf-pkg-config            x86_64  1.4.2-1.el8                      ubi-8-baseos      15 k
+ shared-mime-info              x86_64  1.9-3.el8                        ubi-8-baseos     329 k
+ ttmkfdir                      x86_64  3.0.9-54.el8                     ubi-8-appstream   62 k
+ tzdata-java                   noarch  2021e-1.el8                      ubi-8-appstream  191 k
+ xorg-x11-font-utils           x86_64  1:7.5-41.el8                     ubi-8-appstream  104 k
+ xorg-x11-fonts-Type1          noarch  7.5-19.el8                       ubi-8-appstream  522 k
+Installing weak dependencies:
+ gtk2                          x86_64  2.24.32-5.el8                    ubi-8-appstream  3.4 M
+Enabling module streams:
+ javapackages-runtime                  201801                                                 
+
+Transaction Summary
+==============================================================================================
+Install  66 Packages
+Upgrade   1 Package
+
+Total download size: 59 M
+Downloading Packages:
+(1/67): fontpackages-filesystem-1.44-22.el8.noa 183 kB/s |  16 kB     00:00    
+(2/67): libpkgconf-1.4.2-1.el8.x86_64.rpm       5.5 MB/s |  35 kB     00:00    
+(3/67): avahi-libs-0.7-20.el8.x86_64.rpm        525 kB/s |  62 kB     00:00    
+(4/67): gdk-pixbuf2-2.36.12-5.el8.x86_64.rpm    3.3 MB/s | 467 kB     00:00    
+(5/67): pkgconf-m4-1.4.2-1.el8.noarch.rpm       771 kB/s |  17 kB     00:00    
+(6/67): shared-mime-info-1.9-3.el8.x86_64.rpm   6.7 MB/s | 329 kB     00:00    
+(7/67): libpng-1.6.34-5.el8.x86_64.rpm          2.7 MB/s | 126 kB     00:00    
+(8/67): pkgconf-1.4.2-1.el8.x86_64.rpm          838 kB/s |  38 kB     00:00    
+(9/67): dejavu-fonts-common-2.35-7.el8.noarch.r 1.6 MB/s |  74 kB     00:00    
+(10/67): lksctp-tools-1.0.18-3.el8.x86_64.rpm    12 MB/s | 100 kB     00:00    
+(11/67): fontconfig-2.13.1-4.el8.x86_64.rpm      20 MB/s | 274 kB     00:00    
+(12/67): pkgconf-pkg-config-1.4.2-1.el8.x86_64. 3.1 MB/s |  15 kB     00:00    
+(13/67): freetype-2.9.1-4.el8_3.1.x86_64.rpm     22 MB/s | 394 kB     00:00    
+(14/67): cups-libs-2.2.6-40.el8.x86_64.rpm       28 MB/s | 433 kB     00:00    
+(15/67): harfbuzz-1.7.5-3.el8.x86_64.rpm         22 MB/s | 294 kB     00:00    
+(16/67): cairo-1.15.12-3.el8.x86_64.rpm          25 MB/s | 721 kB     00:00    
+(17/67): jbigkit-libs-2.1-14.el8.x86_64.rpm     6.9 MB/s |  55 kB     00:00    
+(18/67): libXcomposite-0.4.4-14.el8.x86_64.rpm  6.6 MB/s |  29 kB     00:00    
+(19/67): javapackages-filesystem-5.3.0-1.module 8.5 MB/s |  30 kB     00:00    
+(20/67): libfontenc-1.1.3-8.el8.x86_64.rpm      9.4 MB/s |  37 kB     00:00    
+(21/67): dejavu-sans-fonts-2.35-7.el8.noarch.rp  27 MB/s | 1.5 MB     00:00    
+(22/67): libXfixes-5.0.3-7.el8.x86_64.rpm       2.2 MB/s |  25 kB     00:00    
+(23/67): libXrandr-1.5.2-1.el8.x86_64.rpm       2.2 MB/s |  34 kB     00:00    
+(24/67): libXtst-1.2.3-7.el8.x86_64.rpm         607 kB/s |  22 kB     00:00    
+(25/67): libXext-1.3.4-1.el8.x86_64.rpm         1.2 MB/s |  45 kB     00:00    
+(26/67): libXft-2.3.3-1.el8.x86_64.rpm          1.6 MB/s |  67 kB     00:00    
+(27/67): libXinerama-1.1.4-1.el8.x86_64.rpm     1.8 MB/s |  16 kB     00:00    
+(28/67): atk-2.28.1-1.el8.x86_64.rpm             22 MB/s | 272 kB     00:00    
+(29/67): libdatrie-0.2.9-7.el8.x86_64.rpm       4.8 MB/s |  33 kB     00:00    
+(30/67): gdk-pixbuf2-modules-2.36.12-5.el8.x86_  24 MB/s | 109 kB     00:00    
+(31/67): giflib-5.1.4-3.el8.x86_64.rpm           10 MB/s |  51 kB     00:00    
+(32/67): libXrender-0.9.10-7.el8.x86_64.rpm     1.2 MB/s |  33 kB     00:00    
+(33/67): libXi-1.7.10-1.el8.x86_64.rpm          7.8 MB/s |  49 kB     00:00    
+(34/67): libXau-1.0.9-3.el8.x86_64.rpm          3.2 MB/s |  37 kB     00:00    
+(35/67): hicolor-icon-theme-0.17-2.el8.noarch.r 4.9 MB/s |  48 kB     00:00    
+(36/67): xorg-x11-fonts-Type1-7.5-19.el8.noarch  23 MB/s | 522 kB     00:00    
+(37/67): ttmkfdir-3.0.9-54.el8.x86_64.rpm       7.9 MB/s |  62 kB     00:00    
+(38/67): libthai-0.1.27-2.el8.x86_64.rpm         19 MB/s | 203 kB     00:00    
+(39/67): graphite2-1.3.10-10.el8.x86_64.rpm      21 MB/s | 122 kB     00:00    
+(40/67): pixman-0.38.4-1.el8.x86_64.rpm          20 MB/s | 257 kB     00:00    
+(41/67): libXdamage-1.1.4-14.el8.x86_64.rpm     2.2 MB/s |  27 kB     00:00    
+(42/67): libXcursor-1.1.15-3.el8.x86_64.rpm     2.2 MB/s |  36 kB     00:00    
+(43/67): fribidi-1.0.4-8.el8.x86_64.rpm          12 MB/s |  89 kB     00:00    
+(44/67): libxcb-1.13.1-1.el8.x86_64.rpm          20 MB/s | 229 kB     00:00    
+(45/67): libjpeg-turbo-1.5.3-12.el8.x86_64.rpm   19 MB/s | 157 kB     00:00    
+(46/67): java-1.8.0-openjdk-1.8.0.312.b07-2.el8  17 MB/s | 341 kB     00:00    
+(47/67): lua-5.3.4-12.el8.x86_64.rpm             23 MB/s | 192 kB     00:00    
+(48/67): xorg-x11-font-utils-7.5-41.el8.x86_64.  20 MB/s | 104 kB     00:00    
+(49/67): nss-3.67.0-6.el8_4.x86_64.rpm           17 MB/s | 741 kB     00:00    
+(50/67): gtk2-2.24.32-5.el8.x86_64.rpm           18 MB/s | 3.4 MB     00:00    
+(51/67): nss-softokn-freebl-3.67.0-6.el8_4.x86_  21 MB/s | 395 kB     00:00    
+(52/67): libtiff-4.0.9-20.el8.x86_64.rpm         16 MB/s | 188 kB     00:00    
+(53/67): tzdata-java-2021e-1.el8.noarch.rpm      12 MB/s | 191 kB     00:00    
+(54/67): gtk-update-icon-cache-3.22.30-8.el8.x8 2.8 MB/s |  32 kB     00:00    
+(55/67): alsa-lib-1.2.5-4.el8.x86_64.rpm         19 MB/s | 489 kB     00:00    
+(56/67): copy-jdk-configs-4.0-2.el8.noarch.rpm  3.3 MB/s |  31 kB     00:00    
+(57/67): nss-util-3.67.0-6.el8_4.x86_64.rpm      17 MB/s | 137 kB     00:00    
+(58/67): jasper-libs-2.0.14-5.el8.x86_64.rpm     15 MB/s | 167 kB     00:00    
+(59/67): libX11-common-1.6.8-5.el8.noarch.rpm    16 MB/s | 158 kB     00:00    
+(60/67): nspr-4.32.0-1.el8_4.x86_64.rpm          13 MB/s | 142 kB     00:00    
+(61/67): nss-softokn-3.67.0-6.el8_4.x86_64.rpm   23 MB/s | 487 kB     00:00    
+(62/67): nss-sysinit-3.67.0-6.el8_4.x86_64.rpm  5.7 MB/s |  73 kB     00:00    
+(63/67): java-1.8.0-openjdk-devel-1.8.0.312.b07  26 MB/s | 9.8 MB     00:00    
+(64/67): pango-1.42.4-8.el8.x86_64.rpm          5.9 MB/s | 297 kB     00:00    
+(65/67): libX11-1.6.8-5.el8.x86_64.rpm           35 MB/s | 611 kB     00:00    
+(66/67): lua-libs-5.3.4-12.el8.x86_64.rpm       7.8 MB/s | 118 kB     00:00    
+(67/67): java-1.8.0-openjdk-headless-1.8.0.312.  54 MB/s |  34 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                            53 MB/s |  59 MB     00:01     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                      1/1 
+  Running scriptlet: java-1.8.0-openjdk-headless-1:1.8.0.312.b07-2.el8_5.   1/1 
+  Preparing        :                                                        1/1 
+  Installing       : nspr-4.32.0-1.el8_4.x86_64                            1/68 
+  Running scriptlet: nspr-4.32.0-1.el8_4.x86_64                            1/68 
+  Installing       : nss-util-3.67.0-6.el8_4.x86_64                        2/68 
+  Installing       : libjpeg-turbo-1.5.3-12.el8.x86_64                     3/68 
+  Installing       : libpng-2:1.6.34-5.el8.x86_64                          4/68 
+  Installing       : freetype-2.9.1-4.el8_3.1.x86_64                       5/68 
+  Installing       : fontpackages-filesystem-1.44-22.el8.noarch            6/68 
+  Installing       : dejavu-fonts-common-2.35-7.el8.noarch                 7/68 
+  Installing       : dejavu-sans-fonts-2.35-7.el8.noarch                   8/68 
+  Installing       : fontconfig-2.13.1-4.el8.x86_64                        9/68 
+  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                        9/68 
+  Installing       : ttmkfdir-3.0.9-54.el8.x86_64                         10/68 
+  Installing       : jasper-libs-2.0.14-5.el8.x86_64                      11/68 
+  Installing       : nss-softokn-freebl-3.67.0-6.el8_4.x86_64             12/68 
+  Installing       : nss-softokn-3.67.0-6.el8_4.x86_64                    13/68 
+  Installing       : nss-sysinit-3.67.0-6.el8_4.x86_64                    14/68 
+  Installing       : nss-3.67.0-6.el8_4.x86_64                            15/68 
+  Upgrading        : lua-libs-5.3.4-12.el8.x86_64                         16/68 
+  Installing       : lua-5.3.4-12.el8.x86_64                              17/68 
+  Installing       : copy-jdk-configs-4.0-2.el8.noarch                    18/68 
+  Installing       : libX11-common-1.6.8-5.el8.noarch                     19/68 
+  Installing       : alsa-lib-1.2.5-4.el8.x86_64                          20/68 
+  Running scriptlet: alsa-lib-1.2.5-4.el8.x86_64                          20/68 
+  Installing       : tzdata-java-2021e-1.el8.noarch                       21/68 
+  Installing       : fribidi-1.0.4-8.el8.x86_64                           22/68 
+  Installing       : graphite2-1.3.10-10.el8.x86_64                       23/68 
+  Installing       : harfbuzz-1.7.5-3.el8.x86_64                          24/68 
+  Running scriptlet: harfbuzz-1.7.5-3.el8.x86_64                          24/68 
+  Installing       : pixman-0.38.4-1.el8.x86_64                           25/68 
+  Installing       : hicolor-icon-theme-0.17-2.el8.noarch                 26/68 
+  Installing       : libXau-1.0.9-3.el8.x86_64                            27/68 
+  Installing       : libxcb-1.13.1-1.el8.x86_64                           28/68 
+  Installing       : libX11-1.6.8-5.el8.x86_64                            29/68 
+  Installing       : libXext-1.3.4-1.el8.x86_64                           30/68 
+  Installing       : libXrender-0.9.10-7.el8.x86_64                       31/68 
+  Installing       : libXi-1.7.10-1.el8.x86_64                            32/68 
+  Installing       : libXfixes-5.0.3-7.el8.x86_64                         33/68 
+  Installing       : cairo-1.15.12-3.el8.x86_64                           34/68 
+  Installing       : libXcomposite-0.4.4-14.el8.x86_64                    35/68 
+  Installing       : libXcursor-1.1.15-3.el8.x86_64                       36/68 
+  Installing       : libXdamage-1.1.4-14.el8.x86_64                       37/68 
+  Installing       : libXtst-1.2.3-7.el8.x86_64                           38/68 
+  Installing       : libXrandr-1.5.2-1.el8.x86_64                         39/68 
+  Installing       : libXft-2.3.3-1.el8.x86_64                            40/68 
+  Installing       : libXinerama-1.1.4-1.el8.x86_64                       41/68 
+  Installing       : giflib-5.1.4-3.el8.x86_64                            42/68 
+  Installing       : libdatrie-0.2.9-7.el8.x86_64                         43/68 
+  Running scriptlet: libdatrie-0.2.9-7.el8.x86_64                         43/68 
+  Installing       : libthai-0.1.27-2.el8.x86_64                          44/68 
+  Running scriptlet: libthai-0.1.27-2.el8.x86_64                          44/68 
+  Installing       : pango-1.42.4-8.el8.x86_64                            45/68 
+  Running scriptlet: pango-1.42.4-8.el8.x86_64                            45/68 
+  Installing       : atk-2.28.1-1.el8.x86_64                              46/68 
+  Installing       : libfontenc-1.1.3-8.el8.x86_64                        47/68 
+  Installing       : javapackages-filesystem-5.3.0-1.module+el8+2447+6f   48/68 
+  Installing       : jbigkit-libs-2.1-14.el8.x86_64                       49/68 
+  Running scriptlet: jbigkit-libs-2.1-14.el8.x86_64                       49/68 
+  Installing       : libtiff-4.0.9-20.el8.x86_64                          50/68 
+  Installing       : lksctp-tools-1.0.18-3.el8.x86_64                     51/68 
+  Running scriptlet: lksctp-tools-1.0.18-3.el8.x86_64                     51/68 
+  Installing       : pkgconf-m4-1.4.2-1.el8.noarch                        52/68 
+  Installing       : shared-mime-info-1.9-3.el8.x86_64                    53/68 
+  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                    53/68 
+  Installing       : gdk-pixbuf2-2.36.12-5.el8.x86_64                     54/68 
+  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                     54/68 
+  Installing       : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64             55/68 
+  Installing       : gtk-update-icon-cache-3.22.30-8.el8.x86_64           56/68 
+  Installing       : libpkgconf-1.4.2-1.el8.x86_64                        57/68 
+  Installing       : pkgconf-1.4.2-1.el8.x86_64                           58/68 
+  Installing       : pkgconf-pkg-config-1.4.2-1.el8.x86_64                59/68 
+  Installing       : xorg-x11-font-utils-1:7.5-41.el8.x86_64              60/68 
+  Installing       : xorg-x11-fonts-Type1-7.5-19.el8.noarch               61/68 
+  Running scriptlet: xorg-x11-fonts-Type1-7.5-19.el8.noarch               61/68 
+  Installing       : avahi-libs-0.7-20.el8.x86_64                         62/68 
+  Installing       : cups-libs-1:2.2.6-40.el8.x86_64                      63/68 
+  Installing       : java-1.8.0-openjdk-headless-1:1.8.0.312.b07-2.el8_   64/68 
+  Running scriptlet: java-1.8.0-openjdk-headless-1:1.8.0.312.b07-2.el8_   64/68 
+  Installing       : gtk2-2.24.32-5.el8.x86_64                            65/68 
+  Running scriptlet: gtk2-2.24.32-5.el8.x86_64                            65/68 
+  Installing       : java-1.8.0-openjdk-1:1.8.0.312.b07-2.el8_5.x86_64    66/68 
+  Running scriptlet: java-1.8.0-openjdk-1:1.8.0.312.b07-2.el8_5.x86_64    66/68 
+  Installing       : java-1.8.0-openjdk-devel-1:1.8.0.312.b07-2.el8_5.x   67/68 
+  Running scriptlet: java-1.8.0-openjdk-devel-1:1.8.0.312.b07-2.el8_5.x   67/68 
+  Cleanup          : lua-libs-5.3.4-11.el8.x86_64                         68/68 
+  Running scriptlet: nss-3.67.0-6.el8_4.x86_64                            68/68 
+  Running scriptlet: copy-jdk-configs-4.0-2.el8.noarch                    68/68 
+  Running scriptlet: java-1.8.0-openjdk-1:1.8.0.312.b07-2.el8_5.x86_64    68/68 
+  Running scriptlet: java-1.8.0-openjdk-devel-1:1.8.0.312.b07-2.el8_5.x   68/68 
+  Running scriptlet: lua-libs-5.3.4-11.el8.x86_64                         68/68 
+  Running scriptlet: fontconfig-2.13.1-4.el8.x86_64                       68/68 
+  Running scriptlet: hicolor-icon-theme-0.17-2.el8.noarch                 68/68 
+  Running scriptlet: shared-mime-info-1.9-3.el8.x86_64                    68/68 
+  Running scriptlet: gdk-pixbuf2-2.36.12-5.el8.x86_64                     68/68 
+  Verifying        : fontpackages-filesystem-1.44-22.el8.noarch            1/68 
+  Verifying        : avahi-libs-0.7-20.el8.x86_64                          2/68 
+  Verifying        : gdk-pixbuf2-2.36.12-5.el8.x86_64                      3/68 
+  Verifying        : libpkgconf-1.4.2-1.el8.x86_64                         4/68 
+  Verifying        : shared-mime-info-1.9-3.el8.x86_64                     5/68 
+  Verifying        : pkgconf-m4-1.4.2-1.el8.noarch                         6/68 
+  Verifying        : libpng-2:1.6.34-5.el8.x86_64                          7/68 
+  Verifying        : pkgconf-1.4.2-1.el8.x86_64                            8/68 
+  Verifying        : dejavu-fonts-common-2.35-7.el8.noarch                 9/68 
+  Verifying        : fontconfig-2.13.1-4.el8.x86_64                       10/68 
+  Verifying        : lksctp-tools-1.0.18-3.el8.x86_64                     11/68 
+  Verifying        : freetype-2.9.1-4.el8_3.1.x86_64                      12/68 
+  Verifying        : pkgconf-pkg-config-1.4.2-1.el8.x86_64                13/68 
+  Verifying        : cups-libs-1:2.2.6-40.el8.x86_64                      14/68 
+  Verifying        : dejavu-sans-fonts-2.35-7.el8.noarch                  15/68 
+  Verifying        : cairo-1.15.12-3.el8.x86_64                           16/68 
+  Verifying        : harfbuzz-1.7.5-3.el8.x86_64                          17/68 
+  Verifying        : jbigkit-libs-2.1-14.el8.x86_64                       18/68 
+  Verifying        : libXcomposite-0.4.4-14.el8.x86_64                    19/68 
+  Verifying        : javapackages-filesystem-5.3.0-1.module+el8+2447+6f   20/68 
+  Verifying        : libfontenc-1.1.3-8.el8.x86_64                        21/68 
+  Verifying        : libXrandr-1.5.2-1.el8.x86_64                         22/68 
+  Verifying        : libXfixes-5.0.3-7.el8.x86_64                         23/68 
+  Verifying        : libXft-2.3.3-1.el8.x86_64                            24/68 
+  Verifying        : libXext-1.3.4-1.el8.x86_64                           25/68 
+  Verifying        : libXtst-1.2.3-7.el8.x86_64                           26/68 
+  Verifying        : libXrender-0.9.10-7.el8.x86_64                       27/68 
+  Verifying        : libXinerama-1.1.4-1.el8.x86_64                       28/68 
+  Verifying        : atk-2.28.1-1.el8.x86_64                              29/68 
+  Verifying        : libdatrie-0.2.9-7.el8.x86_64                         30/68 
+  Verifying        : gdk-pixbuf2-modules-2.36.12-5.el8.x86_64             31/68 
+  Verifying        : giflib-5.1.4-3.el8.x86_64                            32/68 
+  Verifying        : libXi-1.7.10-1.el8.x86_64                            33/68 
+  Verifying        : xorg-x11-fonts-Type1-7.5-19.el8.noarch               34/68 
+  Verifying        : libXau-1.0.9-3.el8.x86_64                            35/68 
+  Verifying        : hicolor-icon-theme-0.17-2.el8.noarch                 36/68 
+  Verifying        : ttmkfdir-3.0.9-54.el8.x86_64                         37/68 
+  Verifying        : libthai-0.1.27-2.el8.x86_64                          38/68 
+  Verifying        : pixman-0.38.4-1.el8.x86_64                           39/68 
+  Verifying        : gtk2-2.24.32-5.el8.x86_64                            40/68 
+  Verifying        : graphite2-1.3.10-10.el8.x86_64                       41/68 
+  Verifying        : libXcursor-1.1.15-3.el8.x86_64                       42/68 
+  Verifying        : libXdamage-1.1.4-14.el8.x86_64                       43/68 
+  Verifying        : libxcb-1.13.1-1.el8.x86_64                           44/68 
+  Verifying        : fribidi-1.0.4-8.el8.x86_64                           45/68 
+  Verifying        : java-1.8.0-openjdk-devel-1:1.8.0.312.b07-2.el8_5.x   46/68 
+  Verifying        : libjpeg-turbo-1.5.3-12.el8.x86_64                    47/68 
+  Verifying        : java-1.8.0-openjdk-1:1.8.0.312.b07-2.el8_5.x86_64    48/68 
+  Verifying        : lua-5.3.4-12.el8.x86_64                              49/68 
+  Verifying        : xorg-x11-font-utils-1:7.5-41.el8.x86_64              50/68 
+  Verifying        : nss-3.67.0-6.el8_4.x86_64                            51/68 
+  Verifying        : java-1.8.0-openjdk-headless-1:1.8.0.312.b07-2.el8_   52/68 
+  Verifying        : nss-softokn-freebl-3.67.0-6.el8_4.x86_64             53/68 
+  Verifying        : libtiff-4.0.9-20.el8.x86_64                          54/68 
+  Verifying        : tzdata-java-2021e-1.el8.noarch                       55/68 
+  Verifying        : gtk-update-icon-cache-3.22.30-8.el8.x86_64           56/68 
+  Verifying        : alsa-lib-1.2.5-4.el8.x86_64                          57/68 
+  Verifying        : copy-jdk-configs-4.0-2.el8.noarch                    58/68 
+  Verifying        : nss-util-3.67.0-6.el8_4.x86_64                       59/68 
+  Verifying        : jasper-libs-2.0.14-5.el8.x86_64                      60/68 
+  Verifying        : libX11-common-1.6.8-5.el8.noarch                     61/68 
+  Verifying        : nspr-4.32.0-1.el8_4.x86_64                           62/68 
+  Verifying        : nss-softokn-3.67.0-6.el8_4.x86_64                    63/68 
+  Verifying        : nss-sysinit-3.67.0-6.el8_4.x86_64                    64/68 
+  Verifying        : pango-1.42.4-8.el8.x86_64                            65/68 
+  Verifying        : libX11-1.6.8-5.el8.x86_64                            66/68 
+  Verifying        : lua-libs-5.3.4-12.el8.x86_64                         67/68 
+  Verifying        : lua-libs-5.3.4-11.el8.x86_64                         68/68 
+Installed products updated.
+
+Upgraded:
+  lua-libs-5.3.4-12.el8.x86_64                                                  
+
+Installed:
+  alsa-lib-1.2.5-4.el8.x86_64                                                   
+  atk-2.28.1-1.el8.x86_64                                                       
+  avahi-libs-0.7-20.el8.x86_64                                                  
+  cairo-1.15.12-3.el8.x86_64                                                    
+  copy-jdk-configs-4.0-2.el8.noarch                                             
+  cups-libs-1:2.2.6-40.el8.x86_64                                               
+  dejavu-fonts-common-2.35-7.el8.noarch                                         
+  dejavu-sans-fonts-2.35-7.el8.noarch                                           
+  fontconfig-2.13.1-4.el8.x86_64                                                
+  fontpackages-filesystem-1.44-22.el8.noarch                                    
+  freetype-2.9.1-4.el8_3.1.x86_64                                               
+  fribidi-1.0.4-8.el8.x86_64                                                    
+  gdk-pixbuf2-2.36.12-5.el8.x86_64                                              
+  gdk-pixbuf2-modules-2.36.12-5.el8.x86_64                                      
+  giflib-5.1.4-3.el8.x86_64                                                     
+  graphite2-1.3.10-10.el8.x86_64                                                
+  gtk-update-icon-cache-3.22.30-8.el8.x86_64                                    
+  gtk2-2.24.32-5.el8.x86_64                                                     
+  harfbuzz-1.7.5-3.el8.x86_64                                                   
+  hicolor-icon-theme-0.17-2.el8.noarch                                          
+  jasper-libs-2.0.14-5.el8.x86_64                                               
+  java-1.8.0-openjdk-1:1.8.0.312.b07-2.el8_5.x86_64                             
+  java-1.8.0-openjdk-devel-1:1.8.0.312.b07-2.el8_5.x86_64                       
+  java-1.8.0-openjdk-headless-1:1.8.0.312.b07-2.el8_5.x86_64                    
+  javapackages-filesystem-5.3.0-1.module+el8+2447+6f56d9a6.noarch               
+  jbigkit-libs-2.1-14.el8.x86_64                                                
+  libX11-1.6.8-5.el8.x86_64                                                     
+  libX11-common-1.6.8-5.el8.noarch                                              
+  libXau-1.0.9-3.el8.x86_64                                                     
+  libXcomposite-0.4.4-14.el8.x86_64                                             
+  libXcursor-1.1.15-3.el8.x86_64                                                
+  libXdamage-1.1.4-14.el8.x86_64                                                
+  libXext-1.3.4-1.el8.x86_64                                                    
+  libXfixes-5.0.3-7.el8.x86_64                                                  
+  libXft-2.3.3-1.el8.x86_64                                                     
+  libXi-1.7.10-1.el8.x86_64                                                     
+  libXinerama-1.1.4-1.el8.x86_64                                                
+  libXrandr-1.5.2-1.el8.x86_64                                                  
+  libXrender-0.9.10-7.el8.x86_64                                                
+  libXtst-1.2.3-7.el8.x86_64                                                    
+  libdatrie-0.2.9-7.el8.x86_64                                                  
+  libfontenc-1.1.3-8.el8.x86_64                                                 
+  libjpeg-turbo-1.5.3-12.el8.x86_64                                             
+  libpkgconf-1.4.2-1.el8.x86_64                                                 
+  libpng-2:1.6.34-5.el8.x86_64                                                  
+  libthai-0.1.27-2.el8.x86_64                                                   
+  libtiff-4.0.9-20.el8.x86_64                                                   
+  libxcb-1.13.1-1.el8.x86_64                                                    
+  lksctp-tools-1.0.18-3.el8.x86_64                                              
+  lua-5.3.4-12.el8.x86_64                                                       
+  nspr-4.32.0-1.el8_4.x86_64                                                    
+  nss-3.67.0-6.el8_4.x86_64                                                     
+  nss-softokn-3.67.0-6.el8_4.x86_64                                             
+  nss-softokn-freebl-3.67.0-6.el8_4.x86_64                                      
+  nss-sysinit-3.67.0-6.el8_4.x86_64                                             
+  nss-util-3.67.0-6.el8_4.x86_64                                                
+  pango-1.42.4-8.el8.x86_64                                                     
+  pixman-0.38.4-1.el8.x86_64                                                    
+  pkgconf-1.4.2-1.el8.x86_64                                                    
+  pkgconf-m4-1.4.2-1.el8.noarch                                                 
+  pkgconf-pkg-config-1.4.2-1.el8.x86_64                                         
+  shared-mime-info-1.9-3.el8.x86_64                                             
+  ttmkfdir-3.0.9-54.el8.x86_64                                                  
+  tzdata-java-2021e-1.el8.noarch                                                
+  xorg-x11-font-utils-1:7.5-41.el8.x86_64                                       
+  xorg-x11-fonts-Type1-7.5-19.el8.noarch                                        
+
+Complete!
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+
+25 files removed
+STEP 6: RUN groupadd -r nexus -f -g 1001     && useradd -u 1001 -r -g nexus -m -d ${NEXUS_HOME} -s /sbin/nologin                -c "Nexus User" nexus     && chown -R nexus:nexus ${NEXUS_HOME}     && chmod -R 755 ${NEXUS_HOME}
+STEP 7: USER nexus
+STEP 8: ADD nexus-${NEXUS_VERSION}-bundle.tar.gz ${NEXUS_HOME}
+STEP 9: ADD nexus-start.sh ${NEXUS_HOME}/
+STEP 10: RUN ln -s ${NEXUS_HOME}/nexus-${NEXUS_VERSION} ${NEXUS_HOME}/nexus2
+STEP 11: WORKDIR ${NEXUS_HOME}
+STEP 12: VOLUME ["/opt/nexus/sonatype-work"]
+STEP 13: CMD ["sh", "nexus-start.sh"]
+STEP 14: COMMIT nexus
+Getting image source signatures
+Copying blob 476579af086a skipped: already exists
+Copying blob 1e8cd6732429 skipped: already exists
+Copying blob 5fbd642fd134 done
+Copying config 108a4cc8ec done
+Writing manifest to image destination
+Storing signatures
+108a4cc8ecb25325d64e6ce9504164b17301f55108459eb7265a0565db7fbddd
+[student@workstation image]$ 
+[student@workstation image]$ 
+[student@workstation image]$ 
+[student@workstation image]$ cd ..
+[student@workstation comprehensive-review]$ cd deploy/local/
+[student@workstation local]$ 
+[student@workstation local]$ cat run-persistent.sh 
+#!/bin/bash
+if [ ! -d /tmp/docker/work ]; then
+  mkdir -p /tmp/docker/work
+  chcon -Rt container_file_t /tmp/docker/work
+  podman unshare chown 1001:1001 /tmp/docker/work
+fi
+
+podman run -d -v /tmp/docker/work:/opt/nexus/sonatype-work -p 127.0.0.1:18081:8081 nexus[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ ./run-persistent.sh 
+67c9ef0a244f07e573460a83c85e83ccaf4f35940170f2e6d4b9439755f9cef7
+[student@workstation local]$ 
+[student@workstation local]$ podman ps \
+> --format="{{.ID}} {{.Names}} {{.Image}}"
+67c9ef0a244f competent_nash localhost/nexus:latest
+[student@workstation local]$ 
+[student@workstation local]$ podman logs inspiring_poincare | grep JettyServer
+Error: no container with name or ID inspiring_poincare found: no such container
+[student@workstation local]$ 
+[student@workstation local]$ podman logs competent_nash | grep JettyServer
+2021-11-26 14:33:21,049+0000 INFO  [main] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Starting
+2021-11-26 14:33:21,058+0000 INFO  [main] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Applying configuration: file:/opt/nexus/nexus-2.14.3-02/conf/jetty.xml
+2021-11-26 14:33:21,333+0000 INFO  [main] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Applying configuration: file:/opt/nexus/nexus-2.14.3-02/conf/jetty-requestlog.xml
+2021-11-26 14:33:21,344+0000 INFO  [jetty-main-1] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Starting: org.eclipse.jetty.server.Server@21f88bb5
+2021-11-26 14:33:34,117+0000 INFO  [jetty-main-1] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Running
+2021-11-26 14:33:34,118+0000 INFO  [main] *SYSTEM org.sonatype.nexus.bootstrap.jetty.JettyServer - Started
+[student@workstation local]$ 
+[student@workstation local]$ curl -v 127.0.0.1:18081/nexus/ 2>&1 \
+> | grep -E 'HTTP|<title>'
+> GET /nexus/ HTTP/1.1
+< HTTP/1.1 200 OK
+  <title>Nexus Repository Manager</title>
+[student@workstation local]$ 
+[student@workstation local]$ podman rm -f competent_nash
+67c9ef0a244f07e573460a83c85e83ccaf4f35940170f2e6d4b9439755f9cef7
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ podman login -u ${RHT_OCP4_QUAY_USER} quay.io
+Password: 
+Login Succeeded!
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ podman push localhost/nexus:latest \
+> quay.io/${RHT_OCP4_QUAY_USER}/nexus:latest
+Getting image source signatures
+Copying blob 0749d8d3ad27 done
+Copying blob 1e8cd6732429 done
+Copying blob 476579af086a done
+Copying config 108a4cc8ec done
+Writing manifest to image destination
+Copying config 108a4cc8ec done
+Writing manifest to image destination
+Storing signatures
+[student@workstation local]$ 
+[student@workstation local]$
+[student@workstation local]$ 
+[student@workstation local]$ 
+[student@workstation local]$ cd ~/DO180/labs/comprehensive-review/deploy/openshift
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc login -u ${RHT_OCP4_DEV_USER} \
+> -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+Login successful.
+
+You have one project on this server: "vstyvk-console"
+
+Using project "vstyvk-console".
+[student@workstation openshift]$ 
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc new-project ${RHT_OCP4_DEV_USER}-review
+Now using project "vstyvk-review" on server "https://api.na46.prod.nextcle.com:6443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app rails-postgresql-example
+
+to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+
+    kubectl create deployment hello-node --image=k8s.gcr.io/serve_hostname
+
+[student@workstation openshift]$ 
+[student@workstation openshift]$ 
+[student@workstation openshift]$ export RHT_OCP4_QUAY_USER
+[student@workstation openshift]$ envsubst < resources/nexus-deployment.yaml \
+> | oc create -f -
+service/nexus created
+persistentvolumeclaim/nexus created
+deployment.apps/nexus created
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     Pending   0          23s
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     Pending   0          28s
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods -w
+NAME                     READY   STATUS    RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     Pending   0          56s
+nexus-59bb8d75c6-rvxdp   0/1     Pending   0          2m15s
+nexus-59bb8d75c6-rvxdp   0/1     ContainerCreating   0          2m17s
+^C[student@workstation openshift]$ 
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods
+NAME                     READY   STATUS              RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     ContainerCreating   0          5m53s
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc logs nexus-59bb8d75c6-rvxdp
+Error from server (BadRequest): container "nexus" in pod "nexus-59bb8d75c6-rvxdp" is waiting to start: ContainerCreating
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods
+NAME                     READY   STATUS              RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     ContainerCreating   0          7m55s
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc expose svc/nexus
+route.route.openshift.io/nexus exposed
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get route -o yaml
+apiVersion: v1
+items:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: "2021-11-26T15:04:12Z"
+    labels:
+      app: nexus
+    managedFields:
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+        f:spec:
+          f:port:
+            .: {}
+            f:targetPort: {}
+          f:to:
+            f:kind: {}
+            f:name: {}
+            f:weight: {}
+          f:wildcardPolicy: {}
+      manager: kubectl-expose
+      operation: Update
+      time: "2021-11-26T15:04:12Z"
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:ingress: {}
+      manager: openshift-router
+      operation: Update
+      time: "2021-11-26T15:04:13Z"
+    name: nexus
+    namespace: vstyvk-review
+    resourceVersion: "38215102"
+    selfLink: /apis/route.openshift.io/v1/namespaces/vstyvk-review/routes/nexus
+    uid: 94602f8f-6d5d-4fb6-b9b9-0bd1e7cc9425
+  spec:
+    host: nexus-vstyvk-review.apps.na46.prod.nextcle.com
+    port:
+      targetPort: nexus
+    to:
+      kind: Service
+      name: nexus
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: "2021-11-26T15:04:13Z"
+        status: "True"
+        type: Admitted
+      host: nexus-vstyvk-review.apps.na46.prod.nextcle.com
+      routerCanonicalHostname: apps.na46.prod.nextcle.com
+      routerName: default
+      wildcardPolicy: None
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
+[student@workstation openshift]$ 
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc get pods
+NAME                     READY   STATUS              RESTARTS   AGE
+nexus-59bb8d75c6-rvxdp   0/1     ContainerCreating   0          14m
+[student@workstation openshift]$ 
+[student@workstation openshift]$ oc describe pods nexus-59bb8d75c6-rvxdp
+Name:           nexus-59bb8d75c6-rvxdp
+Namespace:      vstyvk-review
+Priority:       0
+Node:           na46-96rsp-worker-0-w8bch/10.0.2.37
+Start Time:     Fri, 26 Nov 2021 09:58:12 -0500
+Labels:         name=nexus
+                pod-template-hash=59bb8d75c6
+Annotations:    kubernetes.io/limit-ranger: LimitRanger plugin set: cpu request for container nexus; cpu limit for container nexus
+                openshift.io/scc: restricted
+Status:         Pending
+IP:             
+IPs:            <none>
+Controlled By:  ReplicaSet/nexus-59bb8d75c6
+Containers:
+  nexus:
+    Container ID:   
+    Image:          quay.io/andrew_xu/nexus:latest
+    Image ID:       
+    Port:           8081/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     1500m
+      memory:  512Mi
+    Requests:
+      cpu:        5m
+      memory:     512Mi
+    Liveness:     tcp-socket :8081 delay=30s timeout=1s period=10s #success=1 #failure=10
+    Readiness:    exec [/bin/sh -i -c curl 127.0.0.1:8081] delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /opt/nexus/sonatype-work from nexus-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-v5djw (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:
+  nexus-data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  nexus
+    ReadOnly:   false
+  default-token-v5djw:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-v5djw
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason              Age                 From                     Message
+  ----     ------              ----                ----                     -------
+  Warning  FailedScheduling    15m                 default-scheduler        0/10 nodes are available: 1 Too many pods, 1 node(s) had taint {node.kubernetes.io/unreachable: }, that the pod didn't tolerate, 3 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 6 Insufficient memory.
+  Warning  FailedScheduling    15m                 default-scheduler        0/10 nodes are available: 1 Too many pods, 1 node(s) had taint {node.kubernetes.io/unreachable: }, that the pod didn't tolerate, 3 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 6 Insufficient memory.
+  Warning  FailedScheduling    14m                 default-scheduler        0/10 nodes are available: 1 Too many pods, 1 node(s) had taint {node.kubernetes.io/unreachable: }, that the pod didn't tolerate, 3 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 6 Insufficient memory.
+  Warning  FailedScheduling    14m                 default-scheduler        0/10 nodes are available: 1 Too many pods, 1 node(s) had taint {node.kubernetes.io/unreachable: }, that the pod didn't tolerate, 3 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 6 Insufficient memory.
+  Normal   Scheduled           13m                 default-scheduler        Successfully assigned vstyvk-review/nexus-59bb8d75c6-rvxdp to na46-96rsp-worker-0-w8bch
+  Warning  FailedMount         114s (x5 over 10m)  kubelet                  Unable to attach or mount volumes: unmounted volumes=[nexus-data], unattached volumes=[nexus-data default-token-v5djw]: timed out waiting for the condition
+  Warning  FailedAttachVolume  95s (x9 over 11m)   attachdetach-controller  AttachVolume.Attach failed for volume "pvc-a20ec89c-850e-492d-bf85-c6054afb98bc" : Volume "563e1878-7385-46ed-ae56-0f051b3d0579" failed to be attached within the alloted time
+[student@workstation openshift]$ 
+
+
+
