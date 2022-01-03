@@ -1,0 +1,68 @@
+1. Run a container as the root user
+
+### Terminal window 1 ###
+
+[student@workstation DO180-apps]$ lab container-rootless start
+
+Setting up workstation for the Guided Exercise: Exploring root and rootless containers
+
+ · Checking podman configuration...............................  SUCCESS
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ sudo podman run --rm --name asroot -ti \
+> registry.access.redhat.com/ubi8:latest /bin/bash
+Trying to pull registry.access.redhat.com/ubi8:latest...
+Getting image source signatures
+Copying blob 26f1167feaf7 done
+Copying blob adffa6963146 done
+Copying config fca12da1dc done
+Writing manifest to image destination
+Storing signatures
+[root@1319c082eac2 /]# 
+[root@1319c082eac2 /]# whoami
+root
+[root@1319c082eac2 /]# 
+[root@1319c082eac2 /]# id
+uid=0(root) gid=0(root) groups=0(root)
+[root@1319c082eac2 /]# 
+[root@1319c082eac2 /]# sleep 1000
+
+
+### Terminal window 2 ###
+
+[student@workstation ~]$ sudo ps -ef | grep "sleep 1000"
+root        3928    3895  0 16:03 pts/0    00:00:00 /usr/bin/coreutils --coreutils-prog-shebang=sleep /usr/bin/sleep 1000
+student     3975    3937  0 16:04 pts/1    00:00:00 grep --color=auto sleep 1000
+[student@workstation ~]$ 
+
+
+2. Run a container as a regular user
+
+### Terminal window 1 ###
+
+[student@workstation DO180-apps]$ podman run --rm --name asuser -ti \
+> registry.access.redhat.com/ubi8:latest /bin/bash
+Trying to pull registry.access.redhat.com/ubi8:latest...
+Getting image source signatures
+Copying blob 26f1167feaf7 done
+Copying blob adffa6963146 done
+Copying config fca12da1dc done
+Writing manifest to image destination
+Storing signatures
+[root@49bee1be5003 /]# 
+[root@49bee1be5003 /]# whoami
+root
+[root@49bee1be5003 /]# 
+[root@49bee1be5003 /]# id
+uid=0(root) gid=0(root) groups=0(root)
+[root@49bee1be5003 /]# 
+[root@49bee1be5003 /]# sleep 1001
+
+### Terminal window 2 ###
+
+[student@workstation ~]$ sudo ps -ef | grep "sleep 1001"
+student     4244    4214  0 16:12 pts/0    00:00:00 /usr/bin/coreutils --coreutils-prog-shebang=sleep /usr/bin/sleep 1001
+student     4252    3937  0 16:12 pts/1    00:00:00 grep --color=auto sleep 1001
+[student@workstation ~]$ 
+
+
+

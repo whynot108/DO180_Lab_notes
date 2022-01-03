@@ -1,0 +1,205 @@
+###
+
+[student@workstation ~]$ lab image-review start
+
+Setting up workstation for the Lab: Managing Images
+
+ · Checking podman configuration...............................  SUCCESS
+[student@workstation ~]$ 
+
+
+
+###
+
+[student@workstation ~]$ podman pull quay.io/redhattraining/nginx:1.17
+Trying to pull quay.io/redhattraining/nginx:1.17...
+Getting image source signatures
+Copying blob d1a81ca518e2 done
+Copying blob b00ee4473ca6 done
+Copying blob c78335199707 done
+Copying config 9beeba249f done
+Writing manifest to image destination
+Storing signatures
+9beeba249f3ee158d3e495a6ac25c5667ae2de8a43ac2a8bfd2bf687a58c06c9
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                        TAG      IMAGE ID       CREATED         SIZE
+registry.access.redhat.com/ubi8   latest   fca12da1dc30   2 weeks ago     235 MB
+quay.io/redhattraining/nginx      1.17     9beeba249f3e   19 months ago   131 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ podman run --name official-nginx \
+> -d -p 8080:80 quay.io/redhattraining/nginx:1.17
+73d47117803c075be6d8964ca519b24f222087455f884ed04e19b061abccd21d
+[student@workstation ~]$ 
+[student@workstation ~]$ curl http://localhost:8080
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE                              COMMAND               CREATED             STATUS                 PORTS                 NAMES
+73d47117803c  quay.io/redhattraining/nginx:1.17  nginx -g daemon o...  About a minute ago  Up About a minute ago  0.0.0.0:8080->80/tcp  official-nginx
+[student@workstation ~]$ 
+[student@workstation ~]$ podman exec -it official-nginx /bin/bash
+root@73d47117803c:/# echo 'DO180: Hello World' > /usr/share/nginx/html/index.html
+root@73d47117803c:/# 
+root@73d47117803c:/# exit
+exit
+[student@workstation ~]$ 
+[student@workstation ~]$ curl http://127.0.0.1:8080
+DO180: Hello World
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman stop official-nginx
+73d47117803c075be6d8964ca519b24f222087455f884ed04e19b061abccd21d
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE  COMMAND  CREATED  STATUS  PORTS  NAMES
+[student@workstation ~]$ 
+[student@workstation ~]$ podman commit -a 'Andrew Xu' \
+> official-nginx do180/mynginx:v1.0-SNAPSHOT
+Getting image source signatures
+Copying blob ffc9b21953f4 skipped: already exists
+Copying blob 2f4accd375d9 skipped: already exists
+Copying blob 6c7de695ede3 skipped: already exists
+Copying blob 5ea0177d65e8 done
+Copying config 1cb658ee17 done
+Writing manifest to image destination
+Storing signatures
+1cb658ee1716899c1abaaf3d3544275c3275d9cf52204ae436ec8aa3dcb67203
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                        TAG             IMAGE ID       CREATED          SIZE
+localhost/do180/mynginx           v1.0-SNAPSHOT   1cb658ee1716   19 seconds ago   131 MB
+registry.access.redhat.com/ubi8   latest          fca12da1dc30   2 weeks ago      235 MB
+quay.io/redhattraining/nginx      1.17            9beeba249f3e   19 months ago    131 MB
+[student@workstation ~]$ 
+
+ 
+[student@workstation ~]$ podman run --name official-nginx-dev \
+> -d -p 8080:80 do180/mynginx:v1.0-SNAPSHOT
+09a209c8a2fe907f5f2683efde186847c0669ad4111fa56d399538c8f68e4328
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE                                  COMMAND               CREATED        STATUS            PORTS                 NAMES
+09a209c8a2fe  localhost/do180/mynginx:v1.0-SNAPSHOT  nginx -g daemon o...  9 seconds ago  Up 8 seconds ago  0.0.0.0:8080->80/tcp  official-nginx-dev
+[student@workstation ~]$ 
+[student@workstation ~]$ podman exec -it official-nginx-dev /bin/bash
+root@09a209c8a2fe:/# echo 'DO180 Page' > /usr/share/nginx/html/index.html
+root@09a209c8a2fe:/# 
+root@09a209c8a2fe:/# exit
+exit
+[student@workstation ~]$ 
+[student@workstation ~]$ curl localhost:8080
+DO180 Page
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman stop official-nginx-dev
+09a209c8a2fe907f5f2683efde186847c0669ad4111fa56d399538c8f68e4328
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE  COMMAND  CREATED  STATUS  PORTS  NAMES
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                        TAG             IMAGE ID       CREATED         SIZE
+localhost/do180/mynginx           v1.0-SNAPSHOT   1cb658ee1716   6 minutes ago   131 MB
+registry.access.redhat.com/ubi8   latest          fca12da1dc30   2 weeks ago     235 MB
+quay.io/redhattraining/nginx      1.17            9beeba249f3e   19 months ago   131 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ podman commit -a 'Andrew Xu' \
+> official-nginx-dev do180/mynginx:v1.0
+Getting image source signatures
+Copying blob ffc9b21953f4 skipped: already exists
+Copying blob 2f4accd375d9 skipped: already exists
+Copying blob 6c7de695ede3 skipped: already exists
+Copying blob 5ea0177d65e8 skipped: already exists
+Copying blob 1a4b66103071 done
+Copying config 7c4ff50917 done
+Writing manifest to image destination
+Storing signatures
+7c4ff50917d4bc1f7aee7335636462d7035eced484cd96a0aa20d44792f04a81
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                        TAG             IMAGE ID       CREATED          SIZE
+localhost/do180/mynginx           v1.0            7c4ff50917d4   18 seconds ago   131 MB
+localhost/do180/mynginx           v1.0-SNAPSHOT   1cb658ee1716   7 minutes ago    131 MB
+registry.access.redhat.com/ubi8   latest          fca12da1dc30   2 weeks ago      235 MB
+quay.io/redhattraining/nginx      1.17            9beeba249f3e   19 months ago    131 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps -a \
+> --format="{{.ID}} {{.Names}} {{.Status}}"
+09a209c8a2fe official-nginx-dev Exited (0) 2 minutes ago
+73d47117803c official-nginx Exited (0) 9 minutes ago
+[student@workstation ~]$ 
+[student@workstation ~]$ podman rm official-nginx-dev
+09a209c8a2fe907f5f2683efde186847c0669ad4111fa56d399538c8f68e4328
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps -a --format="{{.ID}} {{.Names}} {{.Status}}"
+73d47117803c official-nginx Exited (0) 9 minutes ago
+[student@workstation ~]$ 
+[student@workstation ~]$ podman rmi do180/mynginx:v1.0-SNAPSHOT
+Untagged: localhost/do180/mynginx:v1.0-SNAPSHOT
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                        TAG      IMAGE ID       CREATED         SIZE
+localhost/do180/mynginx           v1.0     7c4ff50917d4   2 minutes ago   131 MB
+registry.access.redhat.com/ubi8   latest   fca12da1dc30   2 weeks ago     235 MB
+quay.io/redhattraining/nginx      1.17     9beeba249f3e   19 months ago   131 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ podman run -d --name my-nginx \
+> -p 8280:80 do180/mynginx:v1.0
+0463506d649386be809a5954d7fae9dc06daf02380f6278cfaf1cc9f388fe56d
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE                         COMMAND               CREATED        STATUS            PORTS                 NAMES
+0463506d6493  localhost/do180/mynginx:v1.0  nginx -g daemon o...  6 seconds ago  Up 6 seconds ago  0.0.0.0:8280->80/tcp  my-nginx
+[student@workstation ~]$ 
+[student@workstation ~]$ curl 127.0.0.1:8280
+DO180 Page
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ lab image-review finish
+
+Completing the Lab: Managing Images
+
+ · Stopping official-nginx-dev container.......................  SUCCESS
+ · Removing official-nginx-dev container.......................  SUCCESS
+ · Stopping official-nginx container...........................  SUCCESS
+ · Removing official-nginx container...........................  SUCCESS
+ · Removing do180/mynginx:v1.0 image...........................  SUCCESS
+ · Removing quay.io/redhattraining/nginx:1.17 image............  SUCCESS
+[student@workstation ~]$ 
+
+
+###
+
+https://quay.io/repository/
+
+

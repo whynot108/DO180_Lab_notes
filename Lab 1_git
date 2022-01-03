@@ -1,0 +1,55 @@
+[student@workstation DO180-apps]$ pwd
+/home/student/DO180-apps
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ git checkout -b test1branch
+Switched to a new branch 'test1branch'
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ echo "DO180" > TEST1
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ git add .
+[student@workstation DO180-apps]$ git commit -am "DO180: TEST1"
+[test1branch 36ca6f8] DO180: TEST1
+ 1 file changed, 1 insertion(+)
+ create mode 100644 TEST1
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ git push --set-upstream origin test1branch
+Username for 'https://github.com': whynot108
+Password for 'https://whynot108@github.com': 
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 294 bytes | 294.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+remote: 
+remote: Create a pull request for 'test1branch' on GitHub by visiting:
+remote:      https://github.com/whynot108/DO180-apps/pull/new/test1branch
+remote: 
+To https://github.com/whynot108/DO180-apps
+ * [new branch]      test1branch -> test1branch
+Branch 'test1branch' set up to track remote branch 'test1branch' from 'origin'.
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ git branch
+  master
+* test1branch
+[student@workstation DO180-apps]$ 
+[student@workstation DO180-apps]$ echo "OCP4.6" > TEST1-1
+[student@workstation DO180-apps]$ git add .
+[student@workstation DO180-apps]$ git commit -am "OCP4.6"
+[test1branch 6ef5973] OCP4.6
+ 1 file changed, 1 insertion(+)
+ create mode 100644 TEST1-1
+[student@workstation DO180-apps]$ git push
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 289 bytes | 289.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/whynot108/DO180-apps
+   36ca6f8..6ef5973  test1branch -> test1branch
+[student@workstation DO180-apps]$ 
+
+

@@ -1,0 +1,122 @@
+### Before Begin ###
+
+This ensures the /home/student/local/mysql directory exists and is configured with the correct permissions to enable persistent storage for the MySQL container.
+
+[student@workstation ~]$ lab manage-networking start
+
+Setting up workstation for the Guided Exercise: Loading the Database
+
+ · Checking podman configuration...............................  SUCCESS
+ · Creating a host directory for the database container:
+   · Adding fcontext policy for /home/student/local/mysql......  SUCCESS
+   · Creating the /home/student/local/mysql directory..........  SUCCESS
+   · Apply fcontext policy to /home/student/local/mysql........  SUCCESS
+   · Change owner of the /home/student/local/mysql to the mysql  SUCCESS
+Exercise is already setup.
+
+[student@workstation ~]$ 
+[student@workstation ~]$ ls -l /home/student/local/
+total 0
+drwxr-xr-x. 2 100026 100026 6 Jan  3 10:09 mysql
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ podman login registry.redhat.io
+Username: andrew.xu
+Password: 
+Login Succeeded!
+[student@workstation ~]$ 
+[student@workstation ~]$ podman run --name mysqldb-port \
+> -d -v /home/student/local/mysql:/var/lib/mysql/data -p 13306:3306 \
+> -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 \
+> -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 \
+> registry.redhat.io/rhel8/mysql-80:1
+Trying to pull registry.redhat.io/rhel8/mysql-80:1...
+Getting image source signatures
+Copying blob 26f1167feaf7 skipped: already exists
+Copying blob adffa6963146 skipped: already exists
+Copying blob 0661f10c38cc done
+Copying blob 7c012a5d703f done
+Copying config 74ce5f1d5a done
+Writing manifest to image destination
+Storing signatures
+7bbcfc6b255e843bf77561554555ba26022359c96db6ca6744a32f60553be1f6
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman ps --format="{{.ID}} {{.Names}} {{.Ports}}"
+7bbcfc6b255e mysqldb-port 0.0.0.0:13306-&gt;3306/tcp
+[student@workstation ~]$ 
+
+[student@workstation ~]$ ls -l /home/student/DO180/labs/manage-networking
+total 4
+-rw-rw-r--. 1 student student 271 Aug 16 11:45 db.sql
+[student@workstation ~]$ 
+[student@workstation ~]$ ls -l /usr/bin | grep mysql
+-rwxr-xr-x. 1 root root     7703224 Aug  7  2019 mysql
+-rwxr-xr-x. 1 root root     7474568 Aug  7  2019 mysqladmin
+-rwxr-xr-x. 1 root root     8198496 Aug  7  2019 mysqlbinlog
+-rwxr-xr-x. 1 root root     7495776 Aug  7  2019 mysqlcheck
+-rwxr-xr-x. 1 root root      674536 Aug  7  2019 mysql_config_editor
+-rwxr-xr-x. 1 root root     7587512 Aug  7  2019 mysqldump
+-rwxr-xr-x. 1 root root     7473224 Aug  7  2019 mysqlimport
+-rwxr-xr-x. 1 root root     8380216 Aug  7  2019 mysqlpump
+-rwxr-xr-x. 1 root root     7467976 Aug  7  2019 mysqlshow
+-rwxr-xr-x. 1 root root     7497176 Aug  7  2019 mysqlslap
+[student@workstation ~]$ 
+[student@workstation ~]$ mysql -uuser1 -h 127.0.0.1 -pmypa55 \
+> -P13306 items < /home/student/DO180/labs/manage-networking/db.sql
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman exec -it mysqldb-port \
+> mysql -uroot items -e "SELECT * FROM Item"
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
++----+-------------------+------+
+[student@workstation ~]$ 
+[student@workstation ~]$ mysql -uuser1 -h 127.0.0.1 -pmypa55 \
+> -P13306 items -e "SELECT * FROM Item"
+mysql: [Warning] Using a password on the command line interface can be insecure.
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
++----+-------------------+------+
+[student@workstation ~]$ 
+[student@workstation ~]$ podman exec -it mysqldb-port /bin/bash
+bash-4.4$ mysql -uroot items -e "SELECT * FROM Item"
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
++----+-------------------+------+
+bash-4.4$ 
+bash-4.4$ exit
+exit
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ lab manage-networking finish
+
+Completing the Guided Exercise: Loading the Database
+
+ · Stopping the 'mysqldb-port' container.......................  SUCCESS
+ · Removing the 'mysqldb-port' container.......................  SUCCESS
+ · Removing the 'registry.redhat.io/rhel8/mysql-80:1' image....  SUCCESS
+ · Removing the /home/student/local/mysql directory............  SUCCESS
+ · Removing the fcontext for /home/student/local/mysql.........  SUCCESS
+[student@workstation ~]$ 
+
+
+
+
+

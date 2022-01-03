@@ -1,0 +1,199 @@
+###
+
+[student@workstation ~]$ lab dockerfile-create start
+
+Setting up workstation for the Guided Exercise: Building a basic Apache Container Image
+
+ · Checking podman configuration...............................  SUCCESS
+ · Downloading starter project.................................  SUCCESS
+ · Downloading solution project................................  SUCCESS
+
+Setup successful. Please proceed with the exercise.
+
+[student@workstation ~]$ 
+
+
+
+###
+
+vim /home/student/DO180/labs/dockerfile-create/Containerfile
+
+# Base image
+FROM ubi8/ubi:8.3
+
+MAINTAINER Andrew Xu <andrew.xu@123.email>
+
+LABEL description="A custom Apache container based on UBI 8"
+
+RUN yum install -y httpd && \
+    yum clean all
+
+RUN echo "Hello from Containerfile" > /var/www/html/index.html
+
+EXPOSE 80
+
+CMD ["httpd", "-D", "FOREGROUND"]
+
+
+
+###
+
+[student@workstation ~]$ cd /home/student/DO180/labs/dockerfile-create
+[student@workstation dockerfile-create]$ 
+[student@workstation dockerfile-create]$ podman build --layers=false \
+> -t do180/apache .
+STEP 1: FROM ubi8/ubi:8.3
+Getting image source signatures
+Copying blob 55eda7743468 done
+Copying blob 4b21dcdd136d done
+Copying config 613e5da7a9 done
+Writing manifest to image destination
+Storing signatures
+STEP 2: MAINTAINER Andrew Xu <andrew.xu@123.email>
+STEP 3: LABEL description="A custom Apache container based on UBI 8"
+STEP 4: RUN yum install -y httpd &&     yum clean all
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  1.6 MB/s | 796 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre  16 MB/s | 2.6 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea 176 kB/s |  16 kB     00:00    
+Dependencies resolved.
+============================================================================================
+ Package              Arch    Version                                 Repository        Size
+============================================================================================
+Installing:
+ httpd                x86_64  2.4.37-43.module+el8.5.0+13064+c4b14997 ubi-8-appstream  1.4 M
+Installing dependencies:
+ apr                  x86_64  1.6.3-12.el8                            ubi-8-appstream  130 k
+ apr-util             x86_64  1.6.1-6.el8                             ubi-8-appstream  105 k
+ httpd-filesystem     noarch  2.4.37-43.module+el8.5.0+13064+c4b14997 ubi-8-appstream   39 k
+ httpd-tools          x86_64  2.4.37-43.module+el8.5.0+13064+c4b14997 ubi-8-appstream  107 k
+ mailcap              noarch  2.1.48-3.el8                            ubi-8-baseos      39 k
+ mod_http2            x86_64  1.15.7-3.module+el8.4.0+8625+d397f3da   ubi-8-appstream  154 k
+ redhat-logos-httpd   noarch  84.5-1.el8                              ubi-8-baseos      29 k
+Installing weak dependencies:
+ apr-util-bdb         x86_64  1.6.1-6.el8                             ubi-8-appstream   25 k
+ apr-util-openssl     x86_64  1.6.1-6.el8                             ubi-8-appstream   27 k
+Enabling module streams:
+ httpd                        2.4                                                           
+
+Transaction Summary
+============================================================================================
+Install  10 Packages
+
+Total download size: 2.0 M
+Installed size: 5.5 M
+Downloading Packages:
+(1/10): mailcap-2.1.48-3.el8.noarch.rpm         364 kB/s |  39 kB     00:00    
+(2/10): redhat-logos-httpd-84.5-1.el8.noarch.rp 261 kB/s |  29 kB     00:00    
+(3/10): apr-util-1.6.1-6.el8.x86_64.rpm          11 MB/s | 105 kB     00:00    
+(4/10): mod_http2-1.15.7-3.module+el8.4.0+8625+ 1.3 MB/s | 154 kB     00:00    
+(5/10): apr-util-openssl-1.6.1-6.el8.x86_64.rpm 3.3 MB/s |  27 kB     00:00    
+(6/10): apr-util-bdb-1.6.1-6.el8.x86_64.rpm     5.0 MB/s |  25 kB     00:00    
+(7/10): httpd-filesystem-2.4.37-43.module+el8.5 4.1 MB/s |  39 kB     00:00    
+(8/10): apr-1.6.3-12.el8.x86_64.rpm             5.1 MB/s | 130 kB     00:00    
+(9/10): httpd-tools-2.4.37-43.module+el8.5.0+13 6.5 MB/s | 107 kB     00:00    
+(10/10): httpd-2.4.37-43.module+el8.5.0+13064+c  33 MB/s | 1.4 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                            12 MB/s | 2.0 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Installing       : apr-1.6.3-12.el8.x86_64                               1/10 
+  Running scriptlet: apr-1.6.3-12.el8.x86_64                               1/10 
+  Installing       : apr-util-openssl-1.6.1-6.el8.x86_64                   2/10 
+  Installing       : apr-util-bdb-1.6.1-6.el8.x86_64                       3/10 
+  Installing       : apr-util-1.6.1-6.el8.x86_64                           4/10 
+  Running scriptlet: apr-util-1.6.1-6.el8.x86_64                           4/10 
+  Installing       : httpd-tools-2.4.37-43.module+el8.5.0+13064+c4b1499    5/10 
+  Running scriptlet: httpd-filesystem-2.4.37-43.module+el8.5.0+13064+c4    6/10 
+  Installing       : httpd-filesystem-2.4.37-43.module+el8.5.0+13064+c4    6/10 
+  Installing       : mailcap-2.1.48-3.el8.noarch                           7/10 
+  Installing       : redhat-logos-httpd-84.5-1.el8.noarch                  8/10 
+  Installing       : mod_http2-1.15.7-3.module+el8.4.0+8625+d397f3da.x8    9/10 
+  Installing       : httpd-2.4.37-43.module+el8.5.0+13064+c4b14997.x86_   10/10 
+  Running scriptlet: httpd-2.4.37-43.module+el8.5.0+13064+c4b14997.x86_   10/10 
+  Verifying        : redhat-logos-httpd-84.5-1.el8.noarch                  1/10 
+  Verifying        : mailcap-2.1.48-3.el8.noarch                           2/10 
+  Verifying        : mod_http2-1.15.7-3.module+el8.4.0+8625+d397f3da.x8    3/10 
+  Verifying        : apr-util-1.6.1-6.el8.x86_64                           4/10 
+  Verifying        : apr-util-openssl-1.6.1-6.el8.x86_64                   5/10 
+  Verifying        : apr-util-bdb-1.6.1-6.el8.x86_64                       6/10 
+  Verifying        : httpd-2.4.37-43.module+el8.5.0+13064+c4b14997.x86_    7/10 
+  Verifying        : apr-1.6.3-12.el8.x86_64                               8/10 
+  Verifying        : httpd-filesystem-2.4.37-43.module+el8.5.0+13064+c4    9/10 
+  Verifying        : httpd-tools-2.4.37-43.module+el8.5.0+13064+c4b1499   10/10 
+Installed products updated.
+
+Installed:
+  apr-1.6.3-12.el8.x86_64                                                       
+  apr-util-1.6.1-6.el8.x86_64                                                   
+  apr-util-bdb-1.6.1-6.el8.x86_64                                               
+  apr-util-openssl-1.6.1-6.el8.x86_64                                           
+  httpd-2.4.37-43.module+el8.5.0+13064+c4b14997.x86_64                          
+  httpd-filesystem-2.4.37-43.module+el8.5.0+13064+c4b14997.noarch               
+  httpd-tools-2.4.37-43.module+el8.5.0+13064+c4b14997.x86_64                    
+  mailcap-2.1.48-3.el8.noarch                                                   
+  mod_http2-1.15.7-3.module+el8.4.0+8625+d397f3da.x86_64                        
+  redhat-logos-httpd-84.5-1.el8.noarch                                          
+
+Complete!
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+
+25 files removed
+STEP 5: RUN echo "Hello from Containerfile" > /var/www/html/index.html
+STEP 6: EXPOSE 80
+STEP 7: CMD ["httpd", "-D", "FOREGROUND"]
+STEP 8: COMMIT do180/apache
+Getting image source signatures
+Copying blob 476579af086a skipped: already exists
+Copying blob 1e8cd6732429 skipped: already exists
+Copying blob d7520aae4725 done
+Copying config e7fda2c6cb done
+Writing manifest to image destination
+Storing signatures
+e7fda2c6cb50fe186116f95df0050983c82e9fc2a86e51588d56a1bcc8097b1e
+[student@workstation dockerfile-create]$ 
+[student@workstation dockerfile-create]$ podman images
+REPOSITORY                            TAG      IMAGE ID       CREATED              SIZE
+localhost/do180/apache                latest   e7fda2c6cb50   About a minute ago   234 MB
+registry.access.redhat.com/ubi8       latest   fca12da1dc30   2 weeks ago          235 MB
+registry.access.redhat.com/ubi8/ubi   8.3      613e5da7a934   8 months ago         213 MB
+[student@workstation dockerfile-create]$ 
+
+[student@workstation dockerfile-create]$ podman run --name lab-apache \
+> -d -p 10080:80 do180/apache
+c828fc97f6903362a3827f62d32567f854acb27bb05718891d9acc3b7691fa2b
+[student@workstation dockerfile-create]$ 
+[student@workstation dockerfile-create]$ podman ps
+CONTAINER ID  IMAGE                          COMMAND               CREATED         STATUS             PORTS                  NAMES
+c828fc97f690  localhost/do180/apache:latest  httpd -D FOREGROU...  16 seconds ago  Up 15 seconds ago  0.0.0.0:10080->80/tcp  lab-apache
+[student@workstation dockerfile-create]$ 
+[student@workstation dockerfile-create]$ curl 127.0.0.1:10080
+Hello from Containerfile
+[student@workstation dockerfile-create]$ 
+
+
+
+###
+
+[student@workstation dockerfile-create]$ lab dockerfile-create finish
+
+Completing the Guided Exercise: Building a basic Apache Container Image
+
+ · Stopping lab-apache container that is running...............  SUCCESS
+ · Removing lab-apache container that is in the cache..........  SUCCESS
+ · Removing do180/apache custom container image................  SUCCESS
+ · Removing UBI8 container image...............................  SUCCESS
+[student@workstation dockerfile-create]$ 
+
+

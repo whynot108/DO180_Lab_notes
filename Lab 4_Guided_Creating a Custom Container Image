@@ -1,0 +1,158 @@
+###
+
+[student@workstation ~]$ lab image-operations start
+
+Setting up workstation for the GE: Creating a Custom Apache Container Image
+
+ · Checking podman configuration...............................  SUCCESS
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ podman login quay.io
+Username: andrew_xu
+Password: 
+Login Succeeded!
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman run -d --name official-httpd \
+> -p 8180:80 quay.io/redhattraining/httpd-parent
+Trying to pull quay.io/redhattraining/httpd-parent...
+Getting image source signatures
+Copying blob a3ed95caeb02 done
+Copying blob a3ed95caeb02 done
+Copying blob a3ed95caeb02 done
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob 6a5240d60dc4 done
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob 787f47dbeaac done
+Copying blob 08b8c9fdec44 done
+Copying blob 408208567b9a done
+Writing manifest to image destination
+Storing signatures
+9085de8d2f886d301236c3c785d0c54ba1a4e402200880ef092380e40f238485
+[student@workstation ~]$ 
+[student@workstation ~]$ podman image ls
+REPOSITORY                            TAG      IMAGE ID       CREATED       SIZE
+registry.access.redhat.com/ubi8       latest   fca12da1dc30   2 weeks ago   235 MB
+quay.io/redhattraining/httpd-parent   latest   4346d3cace25   2 years ago   236 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ curl http://localhost:8180
+Hello from the httpd-parent container!
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman exec -it official-httpd /bin/bash
+bash-4.4# echo "DO180 Page" > /var/www/html/do180.html
+bash-4.4# 
+bash-4.4# cat /var/www/html/do180.html
+DO180 Page
+bash-4.4# 
+bash-4.4# exit
+exit
+[student@workstation ~]$ 
+[student@workstation ~]$ curl 127.0.0.1:8180/do180.html
+DO180 Page
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman stop official-httpd
+9085de8d2f886d301236c3c785d0c54ba1a4e402200880ef092380e40f238485
+[student@workstation ~]$ 
+[student@workstation ~]$ podman commit \
+> -a 'Andrew Xu' official-httpd do180-custom-httpd
+Getting image source signatures
+Copying blob 24d85c895b6b skipped: already exists
+Copying blob c613b100be16 skipped: already exists
+Copying blob 574bcc187eda skipped: already exists
+Copying blob 7f9108fde4a1 skipped: already exists
+Copying blob 64189b9a494f done
+Copying config fcdeae96da done
+Writing manifest to image destination
+Storing signatures
+fcdeae96daf4c9d0b8e40255102b65e0adcdcebe43a46f7cd01f7c5f140e36fb
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                            TAG      IMAGE ID       CREATED          SIZE
+localhost/do180-custom-httpd          latest   fcdeae96daf4   22 seconds ago   236 MB
+registry.access.redhat.com/ubi8       latest   fca12da1dc30   2 weeks ago      235 MB
+quay.io/redhattraining/httpd-parent   latest   4346d3cace25   2 years ago      236 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ source /usr/local/etc/ocp4.config 
+[student@workstation ~]$ 
+[student@workstation ~]$ echo ${RHT_OCP4_QUAY_USER}
+andrew_xu
+[student@workstation ~]$ 
+[student@workstation ~]$ podman tag do180-custom-httpd \
+> quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                             TAG      IMAGE ID       CREATED         SIZE
+localhost/do180-custom-httpd           latest   fcdeae96daf4   2 minutes ago   236 MB
+quay.io/andrew_xu/do180-custom-httpd   v1.0     fcdeae96daf4   2 minutes ago   236 MB
+registry.access.redhat.com/ubi8        latest   fca12da1dc30   2 weeks ago     235 MB
+quay.io/redhattraining/httpd-parent    latest   4346d3cace25   2 years ago     236 MB
+[student@workstation ~]$ 
+[student@workstation ~]$ podman push \
+> quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+Getting image source signatures
+Copying blob 64189b9a494f done
+Copying blob 7f9108fde4a1 skipped: already exists
+Copying blob c613b100be16 skipped: already exists
+Copying blob 24d85c895b6b skipped: already exists
+Copying blob 574bcc187eda skipped: already exists
+Error: Error copying image to the remote destination: Error writing blob: Error initiating layer upload to /v2/andrew_xu/do180-custom-httpd/blobs/uploads/ in quay.io: unauthorized: access to the requested resource is not authorized
+[student@workstation ~]$ 
+[student@workstation ~]$ podman push quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+Getting image source signatures
+Copying blob 64189b9a494f done
+Copying blob 7f9108fde4a1 skipped: already exists
+Copying blob 574bcc187eda skipped: already exists
+Copying blob c613b100be16 skipped: already exists
+Copying blob 24d85c895b6b skipped: already exists
+Copying config fcdeae96da done
+Writing manifest to image destination
+Copying config fcdeae96da done
+Writing manifest to image destination
+Writing manifest to image destination
+Storing signatures
+[student@workstation ~]$ 
+[student@workstation ~]$ podman pull \
+> -q quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+0728937918fd08098063f81121d9afb4df4dfbc0cd13e16b90a94d98404fc0f6
+[student@workstation ~]$ 
+[student@workstation ~]$ podman images
+REPOSITORY                             TAG      IMAGE ID       CREATED         SIZE
+localhost/do180-custom-httpd           latest   fcdeae96daf4   8 minutes ago   236 MB
+quay.io/andrew_xu/do180-custom-httpd   v1.0     0728937918fd   8 minutes ago   236 MB
+registry.access.redhat.com/ubi8        latest   fca12da1dc30   2 weeks ago     235 MB
+quay.io/redhattraining/httpd-parent    latest   4346d3cace25   2 years ago     236 MB
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman run -d --name test-httpd -p 8280:80 \
+> ${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+e2b67f3fe2f88b00247e8c6810a584c4bf3c91fb0fbe2232dc18deeee7c6d5ad
+[student@workstation ~]$ 
+[student@workstation ~]$ curl http://localhost:8280/do180.html
+DO180 Page
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ lab image-operations finish
+
+Completing the GE: Creating a Custom Apache Container Image
+
+ · Stopping official-httpd container...........................  SUCCESS
+ · Removing official-httpd container...........................  SUCCESS
+ · Stopping test-httpd container...............................  SUCCESS
+ · Removing test-httpd container...............................  SUCCESS
+ · Removing redhattraining/httpd-parent image..................  SUCCESS
+ · Removing quay.io/andrew_xu/do180-custom-httpd image.........  SUCCESS
+ · Removing localhost/do180-custom-httpd image.................  SUCCESS
+[student@workstation ~]$ 
+
+
+
+

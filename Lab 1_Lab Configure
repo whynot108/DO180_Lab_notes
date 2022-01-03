@@ -1,0 +1,46 @@
+ [student@workstation ~]$ lab-configure
+
+This script configures the connection parameters to access the OpenShift cluster for your lab scripts
+
+ · Enter the API Endpoint: https://api.na46.prod.nextcle.com:6443
+ · Enter the Username: kahloe
+ · Enter the Password: eeab989fd9464c648d46
+ · Enter the GitHub Account Name: whynot108
+ · Enter the Quay.io Account Name: andrew_xu
+
+You entered:
+ · API Endpoint:			https://api.na46.prod.nextcle.com:6443
+ · Username:				kahloe
+ · Password:				eeab989fd9464c648d46
+ · GitHub Account Name:			whynot108
+ · Quay.io Account Name:		andrew_xu
+
+Generated config:
+ · API Endpoint:			https://api.na46.prod.nextcle.com:6443
+ · Wildcard Domain:			apps.na46.prod.nextcle.com
+ · Nexus Server Host:			nexus-common.apps.na46.prod.nextcle.com
+ · Username:				kahloe
+ · Password:				eeab989fd9464c648d46
+ · GitHub Account Name:			whynot108
+ · Quay.io Account Name:		andrew_xu
+
+Verifying your API Endpoint...
+
+Verifying your Nexus host...
+
+Verifying your OpenShift developer user credentials...
+
+Verifying your GitHub account name...
+
+Verifying your Quay.io account name...
+
+Verifying your cluster configuration...
+
+Saving your lab configuration file...
+
+All fine, lab config saved. You can now proceed with your exercises.
+
+If you need to modify the configuration, rerun this script or directly modify the values in /usr/local/etc/ocp4.config.
+
+[student@workstation ~]$ 
+

@@ -1,0 +1,300 @@
+### Before Begin ###
+
+You should be able to deploy and manage a persistent database using a shared volume. You should also be able to start a second database using the same shared volume and observe that the data is consistent between the two containers because they are using the same directory on the host to store the MySQL data.
+
+[student@workstation ~]$ lab manage-review start
+
+Setting up workstation for the Lab: Managing Containers
+
+ · Checking podman configuration...............................  SUCCESS
+ · Check that /home/student/local/mysql does not exist.........  SUCCESS
+ · Downloading starter project.................................  SUCCESS
+ · Downloading solution project................................  SUCCESS
+
+Setup successful. Please proceed with the exercise.
+
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ mkdir -pv /home/student/local/mysql
+mkdir: cannot create directory ‘/home/student/local/mysql’: Permission denied
+[student@workstation ~]$ 
+[student@workstation ~]$ ls -l /home/student/local/
+total 0
+[student@workstation ~]$ 
+[student@workstation ~]$ sudo mkdir -pv /home/student/local/mysql
+mkdir: created directory '/home/student/local/mysql'
+[student@workstation ~]$ 
+[student@workstation ~]$ podman unshare chown -Rv 27:27 /home/student/local/mysql
+chown: changing ownership of '/home/student/local/mysql': Operation not permitted
+failed to change ownership of '/home/student/local/mysql' from nobody:nobody to 27:27
+Error: exit status 1
+[student@workstation ~]$ 
+[student@workstation ~]$ sudo podman unshare chown -Rv 27:27 /home/student/local/mysql
+Error: please use unshare with rootless
+[student@workstation ~]$ 
+[student@workstation ~]$ podman unshare chown -Rv 27:27 /home/student/local/mysql
+chown: changing ownership of '/home/student/local/mysql': Operation not permitted
+failed to change ownership of '/home/student/local/mysql' from nobody:nobody to 27:27
+Error: exit status 1
+[student@workstation ~]$ 
+
+[student@workstation ~]$ ls -l
+total 0
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Desktop
+drwxr-xr-x. 4 student student  35 Jan  3 09:24 DO180
+drwxrwxr-x. 9 student student 171 Jan  2 15:54 DO180-apps
+drwxr-xr-x. 2 student student 181 Jan  3 11:11 Documents
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Downloads
+drwxr-xr-x. 2 root    root      6 Jan  3 11:39 local
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Music
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Pictures
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Public
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Templates
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Videos
+[student@workstation ~]$ 
+[student@workstation ~]$ sudo chown student:student local
+[student@workstation ~]$ 
+[student@workstation ~]$ ls -l
+total 0
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Desktop
+drwxr-xr-x. 4 student student  35 Jan  3 09:24 DO180
+drwxrwxr-x. 9 student student 171 Jan  2 15:54 DO180-apps
+drwxr-xr-x. 2 student student 181 Jan  3 11:11 Documents
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Downloads
+drwxr-xr-x. 2 student student   6 Jan  3 11:39 local
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Music
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Pictures
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Public
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Templates
+drwxr-xr-x. 2 student student   6 Jan  2 12:17 Videos
+[student@workstation ~]$ 
+
+[student@workstation ~]$ mkdir -pv /home/student/local/mysql
+mkdir: created directory '/home/student/local/mysql'
+[student@workstation ~]$ 
+[student@workstation ~]$ sudo semanage fcontext -a \
+> -t container_file_t '/home/student/local/mysql(/.*)?'
+[student@workstation ~]$ 
+[student@workstation ~]$ sudo restorecon -R /home/student/local/mysql
+[student@workstation ~]$ 
+[student@workstation ~]$ podman unshare chown -Rv 27:27 /home/student/local/mysql
+changed ownership of '/home/student/local/mysql' from root:root to 27:27
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ podman login registry.redhat.io
+Authenticating with existing credentials...
+Existing credentials are valid. Already logged in to registry.redhat.io
+[student@workstation ~]$ 
+
+
+Deploy a MySQL container instance using the following characteristics:
+• Name: mysql-1
+• Run as daemon: yes
+• Volume: from /home/student/local/mysql host folder to /var/lib/mysql/data container folder
+• Container image: registry.redhat.io/rhel8/mysql-80:1
+• Port forward: yes, from host port 13306 to container port 3306
+• Environment variables:
+– MYSQL_USER: user1
+– MYSQL_PASSWORD: mypa55
+– MYSQL_DATABASE: items
+– MYSQL_ROOT_PASSWORD: r00tpa55
+
+[student@workstation ~]$ podman run --name mysql-1 -p 13306:3306 \
+> -d -v /home/student/local/mysql:/var/lib/mysql/data \
+> -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 \
+> -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 \
+> registry.redhat.io/rhel8/mysql-80:1
+Trying to pull registry.redhat.io/rhel8/mysql-80:1...
+Getting image source signatures
+Copying blob adffa6963146 skipped: already exists
+Copying blob 26f1167feaf7 skipped: already exists
+Copying blob 7c012a5d703f done
+Copying blob 0661f10c38cc done
+Copying config 74ce5f1d5a done
+Writing manifest to image destination
+Storing signatures
+e3d603466d925ef146ed620f797c95ade4af5084c0b8dea92a641a803b9c3c88
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps --format="{{.ID}} {{.Names}}"
+e3d603466d92 mysql-1
+[student@workstation ~]$ 
+[student@workstation ~]$ mysql -uuser1 -h 127.0.0.1 \
+> -pmypa55 -P13306 items < /home/student/DO180/labs/manage-review/db.sql
+mysql: [Warning] Using a password on the command line interface can be insecure.
+[student@workstation ~]$ 
+[student@workstation ~]$ mysql -uuser1 -h 127.0.0.1 -pmypa55 \
+> -P13306 items -e "SELECT * FROM Item"
+mysql: [Warning] Using a password on the command line interface can be insecure.
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
++----+-------------------+------+
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE                                COMMAND     CREATED        STATUS            PORTS                    NAMES
+e3d603466d92  registry.redhat.io/rhel8/mysql-80:1  run-mysqld  9 minutes ago  Up 9 minutes ago  0.0.0.0:13306->3306/tcp  mysql-1
+[student@workstation ~]$ 
+[student@workstation ~]$ podman stop mysql-1
+e3d603466d925ef146ed620f797c95ade4af5084c0b8dea92a641a803b9c3c88
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps
+CONTAINER ID  IMAGE  COMMAND  CREATED  STATUS  PORTS  NAMES
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ podman run --name mysql-2 \
+> -d -v /home/student/local/mysql:/var/lib/mysql/data \
+> -p 13306:3306 \
+> -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 \
+> -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 \
+> registry.redhat.io/rhel8/mysql-80:1
+481e66c1a9c843e547d2207c8b516cb466da7e08931fba97e40a5b8d2d69a1f4
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps --format="{{.ID}} {{.Names}}"
+481e66c1a9c8 mysql-2
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps -a > /tmp/my-containers
+[student@workstation ~]$ 
+[student@workstation ~]$ cat /tmp/my-containers 
+CONTAINER ID  IMAGE                                COMMAND     CREATED         STATUS                    PORTS                    NAMES
+481e66c1a9c8  registry.redhat.io/rhel8/mysql-80:1  run-mysqld  50 seconds ago  Up 50 seconds ago         0.0.0.0:13306->3306/tcp  mysql-2
+e3d603466d92  registry.redhat.io/rhel8/mysql-80:1  run-mysqld  13 minutes ago  Exited (0) 3 minutes ago  0.0.0.0:13306->3306/tcp  mysql-1
+[student@workstation ~]$ 
+
+[student@workstation ~]$ podman exec -it mysql-2 /bin/bash
+bash-4.4$ mysql -uroot
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.26 Source distribution
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| items              |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> use items;
+Database changed
+mysql> show tables;
++-----------------+
+| Tables_in_items |
++-----------------+
+| Item            |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM Item;
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
++----+-------------------+------+
+2 rows in set (0.01 sec)
+
+mysql> exit
+Bye
+bash-4.4$ exit
+exit
+[student@workstation ~]$ 
+
+[student@workstation ~]$ mysql -uuser1 -h workstation.lab.example.com \
+> -pmypa55 -P13306 items
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.0.26 Source distribution
+
+Copyright (c) 2000, 2019, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> insert into Item (description, done) values ('Finished lab', 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> show tables;
++-----------------+
+| Tables_in_items |
++-----------------+
+| Item            |
++-----------------+
+1 row in set (0.01 sec)
+
+mysql> SELECT * FROM Item;
++----+-------------------+------+
+| id | description       | done |
++----+-------------------+------+
+|  1 | Pick up newspaper |    0 |
+|  2 | Buy groceries     |    1 |
+|  3 | Finished lab      |    1 |
++----+-------------------+------+
+3 rows in set (0.00 sec)
+
+mysql> exit
+Bye
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ podman rm mysql-1
+e3d603466d925ef146ed620f797c95ade4af5084c0b8dea92a641a803b9c3c88
+[student@workstation ~]$ 
+[student@workstation ~]$ podman ps -a
+CONTAINER ID  IMAGE                                COMMAND     CREATED        STATUS            PORTS                    NAMES
+481e66c1a9c8  registry.redhat.io/rhel8/mysql-80:1  run-mysqld  9 minutes ago  Up 9 minutes ago  0.0.0.0:13306->3306/tcp  mysql-2
+[student@workstation ~]$ 
+
+
+###
+
+[student@workstation ~]$ lab manage-review finish
+
+Completing the Lab: Managing Containers
+
+ · Removing the /home/student/local/mysql folder...............  SUCCESS
+ · Removing the fcontext for /home/student/local/mysql.........  SUCCESS
+ · Stopping mysql-1 container..................................  SUCCESS
+ · Removing mysql-1 container..................................  SUCCESS
+ · Stopping mysql-2 container..................................  SUCCESS
+ · Removing mysql-2 container..................................  SUCCESS
+ · Removing MySQL container image..............................  SUCCESS
+ · Removing temporary file.....................................  SUCCESS
+ · Removing the project directory..............................  SUCCESS
+ · Removing the solution directory.............................  SUCCESS
+[student@workstation ~]$ 
+
+
+
+

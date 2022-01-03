@@ -1,0 +1,68 @@
+[student@workstation container-review]$ podman run -d -p 8080:80 --name httpd-basic \
+> quay.io/redhattraining/httpd-parent:2.4
+Trying to pull quay.io/redhattraining/httpd-parent:2.4...
+  Get https://quay.io/v2/: dial tcp: lookup quay.io on 172.25.250.254:53: server misbehaving
+Error: unable to pull quay.io/redhattraining/httpd-parent:2.4: unable to pull image: Error initializing source docker://quay.io/redhattraining/httpd-parent:2.4: error pinging docker registry quay.io: Get https://quay.io/v2/: dial tcp: lookup quay.io on 172.25.250.254:53: server misbehaving
+[student@workstation container-review]$ 
+[student@workstation container-review]$ 
+[student@workstation container-review]$ 
+[student@workstation container-review]$ 
+[student@workstation container-review]$ podman run -d -p 8080:80 --name httpd-basic \
+> quay.io/redhattraining/httpd-parent:2.4
+Trying to pull quay.io/redhattraining/httpd-parent:2.4...
+Getting image source signatures
+Copying blob a3ed95caeb02 done
+Copying blob a3ed95caeb02 done
+Copying blob 6a5240d60dc4 done
+Copying blob 787f47dbeaac done
+Copying blob 08b8c9fdec44 done
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob a3ed95caeb02 skipped: already exists
+Copying blob a3ed95caeb02 done
+Copying blob 408208567b9a done
+Writing manifest to image destination
+Storing signatures
+08f7820b9d9b3f764ccce464861222296c7373c4879b85b948771defa6e6ef54
+[student@workstation container-review]$ 
+[student@workstation container-review]$ curl http://localhost:8080
+Hello from the httpd-parent container!
+[student@workstation container-review]$
+[student@workstation container-review]$ 
+[student@workstation container-review]$ podman exec -it httpd-basic /bin/bash
+bash-4.4# 
+bash-4.4# ls -ls /var/www/html
+total 4
+4 -rw-r--r--. 1 root root 39 Jun 12  2019 index.html
+bash-4.4# 
+bash-4.4# echo "Hello World 2022" > /var/www/html/index.html
+bash-4.4# 
+bash-4.4# cat /var/www/html/index.html
+Hello World 2022
+bash-4.4# 
+bash-4.4# exit
+exit
+[student@workstation container-review]$ 
+[student@workstation container-review]$ curl http://localhost:8080
+Hello World 2022
+[student@workstation container-review]$ 
+
+### HTTPD Image: ###
+
+https://quay.io/repository/redhattraining/httpd-parent?tag=2.4&tab=tags
+
+###
+
+[student@workstation container-review]$ lab container-review finish
+
+Completing the Lab: Creating Containerized Services
+
+ · Removing "httpd-basic" container............................  SUCCESS
+ · Removing "redhattraining/httpd-parent:2.4" image............  SUCCESS
+[student@workstation container-review]$ 
+
+
+
+
+
+
